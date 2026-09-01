@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DataLens AI - Evidence Intelligence (ข้อมูลจริง)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+<div class="app">
+  <aside class="sidebar">
+    <div class="brand">
+      <div class="brand-icon"></div>
+      <div>
+        <div class="brand-name">DataLens <span>AI</span></div>
+        <div class="brand-subtitle">Evidence Intelligence</div>
+      </div>
+    </div>
+    <nav class="nav">
+      <button class="nav-item active" data-page="ask" onclick="changePage(this,'ask')"><span class="nav-icon">⌕</span><span class="nav-label">ถามข้อมูล</span></button>
+      <button class="nav-item" data-page="docs" onclick="changePage(this,'docs')"><span class="nav-icon">▣</span><span class="nav-label">เอกสารทั้งหมด</span></button>
+      <button class="nav-item" onclick="notReady('ตารางข้อมูล')"><span class="nav-icon">▦</span><span class="nav-label">ตารางข้อมูล</span></button>
+      <button class="nav-item" onclick="notReady('สรุปประเด็นสำคัญ')"><span class="nav-icon">▤</span><span class="nav-label">สรุปประเด็นสำคัญ</span></button>
+      <button class="nav-item" onclick="notReady('เปรียบเทียบข้อมูล')"><span class="nav-icon">⇄</span><span class="nav-label">เปรียบเทียบข้อมูล</span></button>
+      <button class="nav-item" onclick="notReady('รายงานอัตโนมัติ')"><span class="nav-icon">▧</span><span class="nav-label">รายงานอัตโนมัติ</span></button>
+      <button class="nav-item" onclick="notReady('ประวัติการค้นหา')"><span class="nav-icon">◷</span><span class="nav-label">ประวัติการค้นหา</span></button>
+      <button class="nav-item" onclick="notReady('ตั้งค่า')"><span class="nav-icon">⚙</span><span class="nav-label">ตั้งค่า</span></button>
+    </nav>
+    <div class="sidebar-bottom">
+      <div class="system-card">
+        <div class="system-title">สถานะระบบ</div>
+        <div class="status-line"><span class="dot"></span>พร้อมใช้งาน (ข้อมูลจริง)</div>
+        <div class="status-line">AI: Thai LLM (OpenThaiGPT)</div>
+        <div class="status-line">Retrieval: Local keyword search</div>
+        <div class="status-line" id="statDocCount">เอกสาร: - หลักสูตร</div>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main">
+    <!-- ASK PAGE -->
+    <div id="page-ask" class="page-section" class="page-section">
+      <header class="top-header">
+        <div>
+          <h1 class="page-title">ถามข้อมูลจากเอกสารหลักสูตร (มคอ.2)</h1>
+          <p class="page-description">ค้นหาคำตอบจากเนื้อหาจริงของเอกสารหลักสูตร 4 สาขา คณะเทคโนโลยีสารสนเทศ สจล.</p>
+        </div>
+        <div class="header-actions">
+          <button class="header-btn" onclick="showToast('ระบบค้นหาข้อมูลจากข้อความจริงที่สกัดจาก PDF ทั้ง 4 ไฟล์ที่อัปโหลด')">ⓘ เกี่ยวกับข้อมูล</button>
+        </div>
+      </header>
+
+      <div class="content-grid">
+        <section>
+          <div class="card question-card">
+            <div class="section-title">พิมพ์คำถามของคุณ</div>
+            <div class="question-box">
+              <textarea id="questionInput" placeholder="เช่น หลักสูตร DSBA มีจำนวนหน่วยกิตรวมเท่าไหร่ และมีวิชาบังคับกลุ่มใดบ้าง"></textarea>
+              <div class="question-controls">
+                <span class="select-btn" id="scopeBtn">◉ ค้นหาทุกหลักสูตร ⌄</span>
+                <button id="searchButton" class="search-btn" onclick="askQuestion()">ค้นหาคำตอบ <span>⌕</span></button>
+              </div>
+            </div>
+            <div id="loading" class="loading"><div class="spinner"></div><span id="loadingText">กำลังค้นข้อมูลและประมวลผลด้วย AI...</span></div>
+          </div>
+
+          <div class="card answer-card" id="answerCard">
+            <div class="answer-header">
+              <div class="answer-title">คำตอบจากเอกสาร</div>
+              <div class="confidence" id="confidenceBadge">รอคำถาม</div>
+              <div class="answer-meta"><span id="answerTime"></span></div>
+            </div>
+            <div id="answerBody" class="answer-body">พิมพ์คำถามด้านบนแล้วกด "ค้นหาคำตอบ" ระบบจะค้นข้อความจริงจากเอกสารหลักสูตรทั้ง 4 ไฟล์ แล้วให้ AI สรุปคำตอบพร้อมอ้างอิงหลักฐาน</div>
+            <div id="evidenceSection" class="hidden">
+              <div class="evidence-title">หลักฐานที่ใช้ในการตอบ</div>
+              <div class="evidence-grid" id="evidenceGrid"></div>
+            </div>
+            <div class="info-banner"><span>ⓘ</span><span>คำตอบสร้างจากข้อความที่สกัดได้จริงจากไฟล์ PDF เท่านั้น หากไม่พบข้อมูลเพียงพอ ระบบจะแจ้งให้ทราบ</span></div>
+          </div>
+        </section>
+
+        <aside class="right-column">
+          <div class="card right-card">
+            <div class="right-title">สรุปภาพรวมเอกสาร</div>
+            <div class="stats-grid">
+              <div class="stat"><div class="stat-label">▣ เอกสารทั้งหมด</div><div class="stat-value" id="statDocs">-</div></div>
+              <div class="stat"><div class="stat-label">◇ หลักสูตร</div><div class="stat-value" id="statSources">4 หลักสูตร</div></div>
+              <div class="stat"><div class="stat-label">▤ จำนวนส่วนข้อมูล</div><div class="stat-value" id="statChunks">-</div></div>
+              <div class="stat"><div class="stat-label">◷ อัปเดตล่าสุด</div><div class="stat-value">วันนี้</div></div>
+            </div>
+          </div>
+          <div class="card right-card">
+            <div class="right-title">สัดส่วนเนื้อหาต่อหลักสูตร</div>
+            <div class="chart-area">
+              <div class="donut" id="donutChart"></div>
+              <div class="legend" id="donutLegend"></div>
+            </div>
+          </div>
+          <div class="card right-card">
+            <div class="right-title">คำถามที่แนะนำ</div>
+            <div id="faqList"></div>
+          </div>
+          <div class="card right-card">
+            <div class="right-title">ประวัติการค้นหาล่าสุด</div>
+            <div id="historyList"><div style="font-size:9px;color:#9aa3b1;">ยังไม่มีประวัติการค้นหาในเซสชันนี้</div></div>
+          </div>
+        </aside>
+      </div>
+
+      <footer class="footer">
+        <span>คำตอบทั้งหมดอ้างอิงจากเอกสารหลักสูตรที่อัปโหลดเท่านั้น ระบบไม่สร้างข้อมูลขึ้นมาเอง</span>
+        <span>Powered by Thai LLM (OpenThaiGPT)</span>
+      </footer>
+    </div>
+
+    <!-- DOCS PAGE -->
+    <div id="page-docs" class="hidden page-section">
+      <header class="top-header">
+        <div>
+          <h1 class="page-title">เอกสารทั้งหมด</h1>
+          <p class="page-description">รายการเอกสารหลักสูตรที่ระบบใช้เป็นฐานข้อมูลจริงในการตอบคำถาม</p>
+        </div>
+      </header>
+      <div class="card right-card" style="padding:20px;">
+        <div class="doc-grid" id="docGrid"></div>
+      </div>
+    </div>
+  
+    <!-- OTHER PAGES -->
+    <div id="page-table" class="hidden page-section">
+      <header class="top-header"><h1 class="page-title">???????????</h1></header>
+      <div class="card" style="padding:20px;">?????????????????????????????...</div>
+    </div>
+    <div id="page-summary" class="hidden page-section">
+      <header class="top-header"><h1 class="page-title">????????????????</h1></header>
+      <div class="card" style="padding:20px;">?????????????????????????????...</div>
+    </div>
+    <div id="page-compare" class="hidden page-section">
+      <header class="top-header"><h1 class="page-title">?????????????????</h1></header>
+      <div class="card" style="padding:20px;">?????????????????????????????...</div>
+    </div>
+    <div id="page-report" class="hidden page-section">
+      <header class="top-header"><h1 class="page-title">???????????????</h1></header>
+      <div class="card" style="padding:20px;">?????????????????????????????...</div>
+    </div>
+    <div id="page-history" class="hidden page-section">
+      <header class="top-header"><h1 class="page-title">???????????????</h1></header>
+      <div class="card" style="padding:20px;">??????????????... (??????????????)</div>
+    </div>
+    <div id="page-settings" class="hidden page-section">
+      <header class="top-header"><h1 class="page-title">???????????</h1></header>
+      <div class="card" style="padding:20px;">
+        <div style="display:flex; align-items:center; justify-content:space-between; max-width:400px;">
+          <div><h3 style="margin-bottom:5px;">?????????? (Theme)</h3><p style="font-size:12px; color:var(--muted);">??????????? Light Mode ??? Dark Mode</p></div>
+          <button onclick="toggleTheme()" class="header-btn" id="themeBtn">????????</button>
+        </div>
+      </div>
+    </div>
+
+  </main>
+</div>
+
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
+  <div class="modal-box">
+    <button class="modal-close" onclick="closeModal()">✕</button>
+    <h3 id="modalTitle"></h3>
+    <div class="modal-meta" id="modalMeta"></div>
+    <div class="modal-text" id="modalText"></div>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+
+<script src="script.js"></script>
+</body>
+</html>
+
