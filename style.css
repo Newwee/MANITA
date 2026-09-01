@@ -196,3 +196,47 @@ body.dark-mode .answer-body strong {
 body.dark-mode .file-name {
   color: #e2e8f0;
 }
+/* --- Auth Styles --- */
+.auth-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: var(--background);
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  z-index: 1000;
+}
+
+.auth-container.hidden {
+  display: none !important;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  padding: 40px 30px;
+  box-shadow: var(--shadow);
+}
+
+.auth-input {
+  width: 100%;
+  padding: 12px 15px;
+  margin-bottom: 15px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: var(--white);
+  color: var(--text);
+  font-family: inherit;
+  box-sizing: border-box;
+}
+
+.auth-input:focus {
+  outline: none;
+  border-color: var(--blue);
+}
+
+.top-actions {
+  display: flex;
+  gap: 10px;
+}
