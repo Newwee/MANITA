@@ -158,9 +158,11 @@
           <h1 class="page-title">ถามข้อมูลจากเอกสารหลักสูตร (มคอ.2)</h1>
           <p class="page-description">ค้นหาคำตอบจากเนื้อหาจริงของเอกสารหลักสูตร 4 สาขา คณะเทคโนโลยีสารสนเทศ สจล.</p>
         </div>
-        <div class="header-actions">
-          <button class="header-btn" onclick="showToast('ระบบค้นหาข้อมูลจากข้อความจริงที่สกัดจาก PDF ทั้ง 4 ไฟล์ที่อัปโหลด')">ⓘ เกี่ยวกับข้อมูล</button>
-        </div>
+        <div class="top-actions" style="display: flex; gap: 10px;">
+        <button class="header-btn" onclick="openManual()">📖 คู่มือการใช้งาน</button>
+        <button class="header-btn" onclick="notReady('อัปโหลดเอกสาร')">↑ อัปโหลดเอกสาร</button>
+        <button class="search-btn" style="background:#0f172a; border-radius:6px;" onclick="handleLogout()">🚪 ออกจากระบบ</button>
+      </div>
       </header>
 
       <div class="content-grid">
