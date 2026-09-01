@@ -280,3 +280,19 @@ document.getElementById("questionInput").addEventListener("keydown", function (e
 });
 
 init();
+
+function escapeHtml(s) {
+  return s.replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
+}
+
+function viewDocument(chunkId) {
+  const c = CHUNKS.find(x => x.id === chunkId);
+  if (!c) return;
+  document.getElementById("modalTitle").textContent = "เอกสาร: " + c.docName;
+  document.getElementById("modalMeta").innerHTML = "<b>หน้า:</b> " + c.page + " | <b>ความยาว:</b> " + c.text.length + " ตัวอักษร";
+  document.getElementById("modalText").innerHTML = escapeHtml(c.text).replace(/\n/g, "<br>");
+  document.getElementById("modalOverlay").classList.add("show");
+}
+
+function closeModal() { document.getElementById("modalOverlay").classList.remove("show"); }
+function closeModalOnOverlay(e) { if (e.target.id === "modalOverlay") closeModal(); }
