@@ -470,3 +470,107 @@ window.openManual = openManual;
 window.closeManual = closeManual;
 
 init();
+
+
+// ---- New Auth UI Logic ----
+setTimeout(() => {
+  const tabs = document.querySelectorAll('.tab');
+  const indicator = document.getElementById('tabIndicator');
+  const forms = { login: document.getElementById('loginForm'), register: document.getElementById('registerForm') };
+  const headline = document.getElementById('headline');
+  const switchLine = document.getElementById('switchLine');
+  const switchBtn = document.getElementById('switchBtn');
+
+  if (!indicator) return;
+
+  const headlineText = {
+    login: ['ยินดีต้อนรับกลับมา', 'เข้าสู่ระบบเพื่อคุยกับผู้ช่วย AI ของคุณต่อ'],
+    register: ['เริ่มต้นใช้งาน', 'สร้างบัญชีเพื่อเริ่มคุยกับผู้ช่วย AI']
+  };
+
+  function setTab(name){
+    tabs.forEach(t => t.classList.toggle('active', t.dataset.target === name));
+    Object.entries(forms).forEach(([k, el]) => {
+      if(el) el.classList.toggle('active', k === name);
+    });
+    if(indicator) {
+        indicator.style.transform = name === 'register' ? 'translateX(112px)' : 'translateX(0)';
+        indicator.style.width = '96px';
+    }
+    if(headline) {
+        const h1 = headline.querySelector('h1');
+        const p = headline.querySelector('p');
+        if (h1) h1.textContent = headlineText[name][0];
+        if (p) p.textContent = headlineText[name][1];
+    }
+    if(switchLine) {
+        if(name === 'register'){
+          switchLine.innerHTML = 'มีบัญชีอยู่แล้ว? <button type="button" id="switchBtn">เข้าสู่ระบบ</button>';
+        } else {
+          switchLine.innerHTML = 'ยังไม่มีบัญชี? <button type="button" id="switchBtn">สมัครสมาชิก</button>';
+        }
+        document.getElementById('switchBtn').addEventListener('click', () => setTab(name === 'register' ? 'login' : 'register'));
+    }
+  }
+  tabs.forEach(t => t.addEventListener('click', () => setTab(t.dataset.target)));
+  if(switchBtn) switchBtn.addEventListener('click', () => setTab('register'));
+
+  // Password show/hide + mascot
+  document.querySelectorAll('.eye-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const input = document.getElementById(btn.dataset.toggle);
+      const mascot = document.getElementById(btn.dataset.mascot);
+      if(!input || !mascot) return;
+      const showing = input.type === 'text';
+      input.type = showing ? 'password' : 'text';
+      mascot.classList.toggle('covering', !showing && document.activeElement === input);
+      input.focus();
+    });
+  });
+
+  function wireMascot(inputId, mascotId){
+    const input = document.getElementById(inputId);
+    const mascot = document.getElementById(mascotId);
+    if(!input || !mascot) return;
+    input.addEventListener('focus', () => { if(input.type === 'password') mascot.classList.add('covering'); });
+    input.addEventListener('input', () => { if(input.type === 'password') mascot.classList.add('covering'); });
+    input.addEventListener('blur', () => mascot.classList.remove('covering'));
+  }
+  wireMascot('loginPassword', 'loginMascot');
+  wireMascot('regPassword', 'regMascot');
+
+  // Checklist
+  const rules = {
+    len: v => v.length >= 6,
+    upper: v => /[A-Z]/.test(v),
+    num: v => /[0-9]/.test(v),
+    special: v => /[!@#$%^&*(),.?":{}|<>_\-]/.test(v)
+  };
+  const checklistItems = document.querySelectorAll('#checklist li');
+  const regPassword = document.getElementById('regPassword');
+
+  window.evaluateChecklist = function(flagUnmet){
+    if(!regPassword) return false;
+    const v = regPassword.value;
+    let allMet = true;
+    checklistItems.forEach(li => {
+      const ok = rules[li.dataset.rule](v);
+      li.classList.toggle('met', ok);
+      li.classList.remove('unmet-flag');
+      if(!ok){
+        allMet = false;
+        if(flagUnmet){
+          li.classList.add('unmet-flag');
+          li.addEventListener('animationend', () => li.classList.remove('unmet-flag'), { once:true });
+        }
+      }
+    });
+    return allMet;
+  }
+  if(regPassword) regPassword.addEventListener('input', () => window.evaluateChecklist(false));
+
+  const lf = document.getElementById('loginForm');
+  if(lf) lf.addEventListener('submit', window.handleLogin);
+  const rf = document.getElementById('registerForm');
+  if(rf) rf.addEventListener('submit', window.handleRegister);
+}, 500);

@@ -312,11 +312,11 @@ body.dark-mode .file-name {
 .auth-card .field{ display:flex; flex-direction:column; gap:8px; }
 .auth-card .field label{ font-size:13px; color:var(--text-dim); }
 
-.auth-card .input-row{ position:relative; display:flex; align-items:center; border-bottom:1.5px solid var(--border); transition:border-color .25s ease; padding-bottom:9px; }
+.auth-card .input-row{ position:relative; display:flex; align-items:center; border:1.5px solid var(--border); border-radius: 8px; background: rgba(0,0,0,0.2); transition:border-color .25s ease, box-shadow .25s ease; padding: 10px 14px; margin-top: 4px; }
 .auth-card .input-row:focus-within{ border-color:var(--gold); }
 .auth-card .input-row.invalid{ border-color:var(--brick); }
 
-.auth-card .input-row input{ flex:1; background:none; border:none; outline:none; color:var(--text); font-family:'Space Grotesk', sans-serif; font-size:15.5px; padding:2px 0; }
+.auth-card .input-row input{ flex:1; background:none; border:none; outline:none; color:var(--text); font-family:'Space Grotesk', sans-serif; font-size:15.5px; padding:0; }
 .auth-card .input-row input::placeholder{ color:#5f5570; }
 
 .auth-card .eye-btn{ background:none; border:none; padding:4px; margin-left:8px; cursor:pointer; color:var(--text-dim); display:flex; transition:color .2s ease; }
