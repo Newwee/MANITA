@@ -298,7 +298,7 @@ body.dark-mode .file-name {
 .auth-card .tabs{ position:relative; display:flex; gap:22px; border-bottom:1px solid var(--border); margin-bottom:26px; }
 .auth-card .tab{ background:none; border:none; color:var(--text-dim); font-family:inherit; font-size:14.5px; font-weight:500; padding:0 0 12px; cursor:pointer; transition:color .25s ease; }
 .auth-card .tab.active{ color:var(--text); }
-.auth-card .tab-indicator{ position:absolute; bottom:-1px; left:0; height:2px; width:96px; background:var(--gold); border-radius:2px; transition:transform .32s cubic-bezier(.65,0,.35,1); }
+.auth-card .tab-indicator{ position:absolute; bottom:-1px; left:0; height:2px; width:96px; background:var(--gold); border-radius:2px; transition:transform .32s cubic-bezier(.65,0,.35,1), width .32s cubic-bezier(.65,0,.35,1); }
 
 .auth-card .forms{ position:relative; overflow:hidden; }
 .auth-card .form{ display:none; flex-direction:column; gap:18px; }
@@ -327,7 +327,7 @@ body.dark-mode .file-name {
 
 .auth-card .mascot-wrap{ display:flex; justify-content:center; margin-bottom:-4px; height:64px; }
 .auth-card .mascot{ width:86px; height:64px; overflow:visible; }
-.auth-card .hand{ transition:transform .32s cubic-bezier(.65,0,.35,1); }
+.auth-card .hand{ transition:transform .32s cubic-bezier(.65,0,.35,1), width .32s cubic-bezier(.65,0,.35,1); }
 .auth-card .hand-l{ transform:translate(0,34px) rotate(-6deg); }
 .auth-card .hand-r{ transform:translate(0,34px) rotate(6deg); }
 .auth-card .mascot.covering .hand-l{ transform:translate(0,0) rotate(0deg); }

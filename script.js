@@ -494,8 +494,11 @@ setTimeout(() => {
       if(el) el.classList.toggle('active', k === name);
     });
     if(indicator) {
-        indicator.style.transform = name === 'register' ? 'translateX(112px)' : 'translateX(0)';
-        indicator.style.width = '96px';
+        const activeTabBtn = document.querySelector(`.tab[data-target="${name}"]`);
+        if (activeTabBtn) {
+            indicator.style.transform = `translateX(${activeTabBtn.offsetLeft}px)`;
+            indicator.style.width = `${activeTabBtn.offsetWidth}px`;
+        }
     }
     if(headline) {
         const h1 = headline.querySelector('h1');
