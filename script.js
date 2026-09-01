@@ -341,40 +341,73 @@ try {
   console.warn("Firebase not configured correctly yet.");
 }
 
-window.handleLogin = async function() {
-  const email = document.getElementById("emailInput").value;
-  const password = document.getElementById("passwordInput").value;
-  const errDiv = document.getElementById("authError");
-  if (!email || !password) { errDiv.textContent = "กรุณากรอกอีเมลและรหัสผ่าน"; errDiv.style.display = "block"; return; }
+
+
+const getThaiError = (code) => {
+  switch (code) {
+    case 'auth/weak-password': return 'รหัสผ่านต้องมีความยาวอย่างน้อย 6 ตัวอักษร';
+    case 'auth/email-already-in-use': return 'อีเมลนี้ถูกใช้งานแล้ว';
+    case 'auth/user-not-found':
+    case 'auth/wrong-password':
+    case 'auth/invalid-credential':
+      return 'อีเมลหรือรหัสผ่านไม่ถูกต้อง';
+    case 'auth/invalid-email': return 'รูปแบบอีเมลไม่ถูกต้อง';
+    default: return 'เกิดข้อผิดพลาด: ' + code;
+  }
+};
+
+window.handleLogin = async function(e) {
+  if (e) e.preventDefault();
+  const email = document.getElementById("loginEmail").value;
+  const password = document.getElementById("loginPassword").value;
+  const errDiv = document.getElementById("loginError");
+  const btn = document.getElementById("loginBtn");
+  if (!email || !password) { errDiv.textContent = "กรุณากรอกอีเมลและรหัสผ่านให้ครบ"; return; }
   
   try {
-    document.getElementById("loginBtn").textContent = "กำลังเข้าสู่ระบบ...";
+    btn.textContent = "กำลังเข้าสู่ระบบ...";
     await signInWithEmailAndPassword(auth, email, password);
-    errDiv.style.display = "none";
+    errDiv.textContent = "";
   } catch (error) {
-    errDiv.textContent = "เข้าสู่ระบบล้มเหลว: " + error.message;
-    errDiv.style.display = "block";
+    errDiv.textContent = getThaiError(error.code);
+    const row = document.getElementById('loginEmailRow');
+    if (row) { row.classList.add('shake', 'invalid'); setTimeout(() => row.classList.remove('shake'), 400); }
   } finally {
-    document.getElementById("loginBtn").textContent = "เข้าสู่ระบบ";
+    btn.textContent = "เข้าสู่ระบบ";
   }
 }
 
-window.handleRegister = async function() {
-  const email = document.getElementById("emailInput").value;
-  const password = document.getElementById("passwordInput").value;
-  const errDiv = document.getElementById("authError");
-  if (!email || !password) { errDiv.textContent = "กรุณากรอกอีเมลและรหัสผ่าน"; errDiv.style.display = "block"; return; }
+window.handleRegister = async function(e) {
+  if (e) e.preventDefault();
+  const email = document.getElementById("regEmail").value;
+  const password = document.getElementById("regPassword").value;
+  const confirm = document.getElementById("regConfirm").value;
+  const errDiv = document.getElementById("regError");
+  const btn = document.getElementById("registerBtn");
+  
+  if (!email || !password) { errDiv.textContent = "กรุณากรอกอีเมลและรหัสผ่านให้ครบ"; return; }
+  
+  const passOk = window.evaluateChecklist ? window.evaluateChecklist(true) : (password.length >= 6);
+  if (!passOk) { errDiv.textContent = "รหัสผ่านไม่ผ่านเงื่อนไขที่กำหนด"; return; }
+  
+  if (password !== confirm) {
+    errDiv.textContent = "รหัสผ่านไม่ตรงกัน";
+    const row = document.getElementById('regConfirmRow');
+    if (row) { row.classList.add('shake', 'invalid'); setTimeout(() => row.classList.remove('shake'), 400); }
+    return;
+  }
   
   try {
-    document.getElementById("registerBtn").textContent = "กำลังสมัครสมาชิก...";
+    btn.textContent = "กำลังสมัครสมาชิก...";
     await createUserWithEmailAndPassword(auth, email, password);
-    errDiv.style.display = "none";
+    errDiv.textContent = "";
     showToast("สมัครสมาชิกสำเร็จ!");
   } catch (error) {
-    errDiv.textContent = "สมัครสมาชิกล้มเหลว: " + error.message;
-    errDiv.style.display = "block";
+    errDiv.textContent = getThaiError(error.code);
+    const row = document.getElementById('regEmailRow');
+    if (row) { row.classList.add('shake', 'invalid'); setTimeout(() => row.classList.remove('shake'), 400); }
   } finally {
-    document.getElementById("registerBtn").textContent = "สมัครสมาชิกใหม่";
+    btn.textContent = "สมัครสมาชิกใหม่";
   }
 }
 

@@ -11,216 +11,114 @@
 </head>
 <body>
 
+
+
 <div id="auth-page" class="auth-container">
-  <div class="auth-card card">
-    <div style="text-align:center; margin-bottom: 20px;">
-      <div class="logo">
-        <div class="logo-icon"></div>
-        <div class="logo-text">DataLens <span>AI</span><br><small>Evidence Intelligence</small></div>
-      </div>
-      <h2 style="margin-top:20px; color:var(--text);">เข้าสู่ระบบ</h2>
-    </div>
-    
-    <div id="authError" style="color:red; font-size:12px; margin-bottom:10px; text-align:center; display:none;"></div>
-    
-    <div class="auth-form">
-      <input type="email" id="emailInput" placeholder="อีเมล (Email)" class="auth-input">
-      <input type="password" id="passwordInput" placeholder="รหัสผ่าน (Password)" class="auth-input">
-      
-      <button id="loginBtn" class="search-btn" style="width:100%; margin-bottom:10px;" onclick="handleLogin()">เข้าสู่ระบบ</button>
-      <button id="registerBtn" class="header-btn" style="width:100%; margin-bottom:10px;" onclick="handleRegister()">สมัครสมาชิกใหม่</button>
-    </div>
-  </div>
-</div>
-
-<div class="app">
-  <aside class="sidebar">
+  <div class="auth-card">
     <div class="brand">
-      <div class="brand-icon"></div>
-      <div>
-        <div class="brand-name">DataLens <span>AI</span></div>
-        <div class="brand-subtitle">Evidence Intelligence</div>
-      </div>
-    </div>
-    <nav class="nav">
-      <button class="nav-item active" data-page="ask" onclick="changePage(this,'ask')"><span class="nav-icon">⌕</span><span class="nav-label">ถามข้อมูล</span></button>
-      <button class="nav-item" data-page="docs" onclick="changePage(this,'docs')"><span class="nav-icon">▣</span><span class="nav-label">เอกสารทั้งหมด</span></button>
-      <button class="nav-item" data-page="table" onclick="changePage(this, 'table')"><span class="nav-icon">▦</span><span class="nav-label">ตารางข้อมูล</span></button>
-      <button class="nav-item" data-page="summary" onclick="changePage(this, 'summary')"><span class="nav-icon">▤</span><span class="nav-label">สรุปประเด็นสำคัญ</span></button>
-      <button class="nav-item" data-page="compare" onclick="changePage(this, 'compare')"><span class="nav-icon">⇄</span><span class="nav-label">เปรียบเทียบข้อมูล</span></button>
-      <button class="nav-item" data-page="report" onclick="changePage(this, 'report')"><span class="nav-icon">▧</span><span class="nav-label">รายงานอัตโนมัติ</span></button>
-      <button class="nav-item" data-page="history" onclick="changePage(this, 'history')"><span class="nav-icon">◷</span><span class="nav-label">ประวัติการค้นหา</span></button>
-      <button class="nav-item" data-page="settings" onclick="changePage(this, 'settings')"><span class="nav-icon">⚙</span><span class="nav-label">ตั้งค่า</span></button>
-    </nav>
-    <div class="sidebar-bottom">
-      <div class="system-card">
-        <div class="system-title">สถานะระบบ</div>
-        <div class="status-line"><span class="dot"></span>พร้อมใช้งาน (ข้อมูลจริง)</div>
-        <div class="status-line">AI: Thai LLM (OpenThaiGPT)</div>
-        <div class="status-line">Retrieval: Local keyword search</div>
-        <div class="status-line" id="statDocCount">เอกสาร: - หลักสูตร</div>
-      </div>
-    </div>
-  </aside>
-
-  <main class="main">
-    <!-- ASK PAGE -->
-    <div id="page-ask" class="page-section" class="page-section" class="page-section">
-      <header class="top-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
-      <div>
-        <h1 class="page-title">ถามข้อมูลจากเอกสารหลักสูตร (มคอ.2)</h1>
-        <p class="page-subtitle">ค้นหาคำตอบจากเนื้อหาจริงของเอกสารหลักสูตร 4 สาขา คณะเทคโนโลยีสารสนเทศ สจล.</p>
-      </div>
-      
-      <div class="top-actions">
-        <button class="header-btn" onclick="openManual()">📖 คู่มือการใช้งาน</button>
-        <button class="header-btn" onclick="notReady('อัปโหลดเอกสาร')">↑ อัปโหลดเอกสาร</button>
-        <button class="search-btn" style="background:#0f172a; border-radius:6px;" onclick="handleLogout()">🚪 ออกจากระบบ</button>
-      </div>
-
-    </header>
-
-      <div class="content-grid">
-        <section>
-          <div class="card question-card">
-            <div class="section-title">พิมพ์คำถามของคุณ</div>
-            <div class="question-box">
-              <textarea id="questionInput" placeholder="เช่น หลักสูตร DSBA มีจำนวนหน่วยกิตรวมเท่าไหร่ และมีวิชาบังคับกลุ่มใดบ้าง"></textarea>
-              <div class="question-controls">
-                <span class="select-btn" id="scopeBtn">◉ ค้นหาทุกหลักสูตร ⌄</span>
-                <button id="searchButton" class="search-btn" onclick="askQuestion()">ค้นหาคำตอบ <span>⌕</span></button>
-              </div>
-            </div>
-            <div id="loading" class="loading"><div class="spinner"></div><span id="loadingText">กำลังค้นข้อมูลและประมวลผลด้วย AI...</span></div>
-          </div>
-
-          <div class="card answer-card" id="answerCard">
-            <div class="answer-header">
-              <div class="answer-title">คำตอบจากเอกสาร</div>
-              <div class="confidence" id="confidenceBadge">รอคำถาม</div>
-              <div class="answer-meta"><span id="answerTime"></span></div>
-            </div>
-            <div id="answerBody" class="answer-body">พิมพ์คำถามด้านบนแล้วกด "ค้นหาคำตอบ" ระบบจะค้นข้อความจริงจากเอกสารหลักสูตรทั้ง 4 ไฟล์ แล้วให้ AI สรุปคำตอบพร้อมอ้างอิงหลักฐาน</div>
-            <div id="evidenceSection" class="hidden">
-              <div class="evidence-title">หลักฐานที่ใช้ในการตอบ</div>
-              <div class="evidence-grid" id="evidenceGrid"></div>
-            </div>
-            <div class="info-banner"><span>ⓘ</span><span>คำตอบสร้างจากข้อความที่สกัดได้จริงจากไฟล์ PDF เท่านั้น หากไม่พบข้อมูลเพียงพอ ระบบจะแจ้งให้ทราบ</span></div>
-          </div>
-        </section>
-
-        <aside class="right-column">
-          <div class="card right-card">
-            <div class="right-title">สรุปภาพรวมเอกสาร</div>
-            <div class="stats-grid">
-              <div class="stat"><div class="stat-label">▣ เอกสารทั้งหมด</div><div class="stat-value" id="statDocs">-</div></div>
-              <div class="stat"><div class="stat-label">◇ หลักสูตร</div><div class="stat-value" id="statSources">4 หลักสูตร</div></div>
-              <div class="stat"><div class="stat-label">▤ จำนวนส่วนข้อมูล</div><div class="stat-value" id="statChunks">-</div></div>
-              <div class="stat"><div class="stat-label">◷ อัปเดตล่าสุด</div><div class="stat-value">วันนี้</div></div>
-            </div>
-          </div>
-          <div class="card right-card">
-            <div class="right-title">สัดส่วนเนื้อหาต่อหลักสูตร</div>
-            <div class="chart-area">
-              <div class="donut" id="donutChart"></div>
-              <div class="legend" id="donutLegend"></div>
-            </div>
-          </div>
-          <div class="card right-card">
-            <div class="right-title">คำถามที่แนะนำ</div>
-            <div id="faqList"></div>
-          </div>
-          <div class="card right-card">
-            <div class="right-title">ประวัติการค้นหาล่าสุด</div>
-            <div id="historyList"><div style="font-size:9px;color:#9aa3b1;">ยังไม่มีประวัติการค้นหาในเซสชันนี้</div></div>
-          </div>
-        </aside>
-      </div>
-
-      <footer class="footer">
-        <span>คำตอบทั้งหมดอ้างอิงจากเอกสารหลักสูตรที่อัปโหลดเท่านั้น ระบบไม่สร้างข้อมูลขึ้นมาเอง</span>
-        <span>Powered by Thai LLM (OpenThaiGPT)</span>
-      </footer>
+      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
+        <path d="M4 15C4 8 9 4 13 4C17 4 20 6.5 20 10C20 13 17.5 14.5 15 14.7L15 18" stroke="#c9a227" stroke-width="2" stroke-linecap="round" fill="none"/>
+        <circle cx="15" cy="21.5" r="1.4" fill="#c9a227"/>
+      </svg>
+      <span class="brand-name">DataLens AI</span>
     </div>
 
-    <!-- DOCS PAGE -->
-    <div id="page-docs" class="hidden page-section">
-      <header class="top-header">
-        <div>
-          <h1 class="page-title">เอกสารทั้งหมด</h1>
-          <p class="page-description">รายการเอกสารหลักสูตรที่ระบบใช้เป็นฐานข้อมูลจริงในการตอบคำถาม</p>
+    <div id="headline">
+      <h1 class="auth-h1">??????????????????</h1>
+      <p class="subtitle">????????????????????????????? AI ?????????</p>
+    </div>
+
+    <div class="tabs">
+      <button class="tab active" data-target="login">???????????</button>
+      <button class="tab" data-target="register">???????????</button>
+      <span class="tab-indicator" id="tabIndicator"></span>
+    </div>
+
+    <div class="forms">
+      <!-- LOGIN -->
+      <form class="form active" id="loginForm" novalidate>
+        <div class="field">
+          <label for="loginEmail">?????</label>
+          <div class="input-row" id="loginEmailRow">
+            <input id="loginEmail" type="email" placeholder="you@example.com" required>
+          </div>
         </div>
-      </header>
-      <div class="card right-card" style="padding:20px;">
-        <div class="doc-grid" id="docGrid"></div>
-      </div>
-    </div>
-  
-    <!-- OTHER PAGES -->
-    <div id="page-table" class="hidden page-section">
-      <header class="top-header"><h1 class="page-title">ตารางข้อมูล</h1></header>
-      <div class="card" style="padding:20px;">ส่วนนี้ยังอยู่ระหว่างการพัฒนา...</div>
-    </div>
-    <div id="page-summary" class="hidden page-section">
-      <header class="top-header"><h1 class="page-title">สรุปประเด็นสำคัญ</h1></header>
-      <div class="card" style="padding:20px;">ส่วนนี้ยังอยู่ระหว่างการพัฒนา...</div>
-    </div>
-    <div id="page-compare" class="hidden page-section">
-      <header class="top-header"><h1 class="page-title">เปรียบเทียบข้อมูล</h1></header>
-      <div class="card" style="padding:20px;">ส่วนนี้ยังอยู่ระหว่างการพัฒนา...</div>
-    </div>
-    <div id="page-report" class="hidden page-section">
-      <header class="top-header"><h1 class="page-title">รายงานอัตโนมัติ</h1></header>
-      <div class="card" style="padding:20px;">ส่วนนี้ยังอยู่ระหว่างการพัฒนา...</div>
-    </div>
-    <div id="page-history" class="hidden page-section">
-      <header class="top-header"><h1 class="page-title">ประวัติการค้นหา</h1></header>
-      <div class="card" style="padding:20px;" id="fullHistoryList">ประวัติทั้งหมด... (จำลองการใช้งาน)</div>
-    </div>
-    <div id="page-settings" class="hidden page-section">
-      <header class="top-header"><h1 class="page-title">ตั้งค่าระบบ</h1></header>
-      <div class="card" style="padding:20px;">
-        <div style="display:flex; align-items:center; justify-content:space-between; max-width:400px; padding-bottom:15px; border-bottom:1px solid var(--border);">
-          <div><h3 style="margin-bottom:5px;">โหมดหน้าจอ (Theme)</h3><p style="font-size:12px; color:var(--muted);">สลับระหว่าง Light Mode และ Dark Mode</p></div>
-          <button onclick="toggleTheme()" class="header-btn" style="background:var(--blue); color:#fff; border:none; padding:8px 15px;">สลับโหมด 🌓</button>
-        </div>
-      </div>
-    </div>
-  </main>
-</div>
 
-<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <h3 id="modalTitle"></h3>
-    <div class="modal-meta" id="modalMeta"></div>
-    <div class="modal-text" id="modalText"></div>
+        <div class="field">
+          <label for="loginPassword">????????</label>
+          <div class="mascot-wrap">
+            <svg class="mascot" id="loginMascot" viewBox="0 0 120 90">
+              <ellipse cx="60" cy="48" rx="40" ry="34" fill="#2c2238" stroke="#3a2e48" stroke-width="2"/>
+              <circle class="eye" cx="46" cy="44" r="4.5" fill="#f3eee7"/>
+              <circle class="eye" cx="74" cy="44" r="4.5" fill="#f3eee7"/>
+              <path d="M49 63 Q60 69 71 63" stroke="#a79bb8" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <g class="hand hand-l"><ellipse cx="46" cy="44" rx="15" ry="13" fill="#c9a227"/></g>
+              <g class="hand hand-r"><ellipse cx="74" cy="44" rx="15" ry="13" fill="#c9a227"/></g>
+            </svg>
+          </div>
+          <div class="input-row" id="loginPasswordRow">
+            <input id="loginPassword" type="password" placeholder="??????????????" required>
+            <button type="button" class="eye-btn" data-toggle="loginPassword" data-mascot="loginMascot" aria-label="????/????????????">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M2 12C2 12 5.5 5.5 12 5.5C18.5 5.5 22 12 22 12C22 12 18.5 18.5 12 18.5C5.5 18.5 2 12 2 12Z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/></svg>
+            </button>
+          </div>
+          <p class="error-text" id="loginError"></p>
+        </div>
+
+        <button type="submit" class="submit" id="loginBtn">???????????</button>
+      </form>
+
+      <!-- REGISTER -->
+      <form class="form" id="registerForm" novalidate>
+        <div class="field">
+          <label for="regEmail">?????</label>
+          <div class="input-row" id="regEmailRow">
+            <input id="regEmail" type="email" placeholder="you@example.com" required>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="regPassword">????????????</label>
+          <div class="mascot-wrap">
+            <svg class="mascot" id="regMascot" viewBox="0 0 120 90">
+              <ellipse cx="60" cy="48" rx="40" ry="34" fill="#2c2238" stroke="#3a2e48" stroke-width="2"/>
+              <circle class="eye" cx="46" cy="44" r="4.5" fill="#f3eee7"/>
+              <circle class="eye" cx="74" cy="44" r="4.5" fill="#f3eee7"/>
+              <path d="M49 63 Q60 69 71 63" stroke="#a79bb8" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <g class="hand hand-l"><ellipse cx="46" cy="44" rx="15" ry="13" fill="#c9a227"/></g>
+              <g class="hand hand-r"><ellipse cx="74" cy="44" rx="15" ry="13" fill="#c9a227"/></g>
+            </svg>
+          </div>
+          <div class="input-row" id="regPasswordRow">
+            <input id="regPassword" type="password" placeholder="????????? 6 ????????">
+            <button type="button" class="eye-btn" data-toggle="regPassword" data-mascot="regMascot" aria-label="????/????????????">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M2 12C2 12 5.5 5.5 12 5.5C18.5 5.5 22 12 22 12C22 12 18.5 18.5 12 18.5C5.5 18.5 2 12 2 12Z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/></svg>
+            </button>
+          </div>
+          <ul class="checklist" id="checklist">
+            <li data-rule="len">????????? 6 ????????</li>
+            <li data-rule="upper">?????????????? (A-Z)</li>
+            <li data-rule="num">???????? (0-9)</li>
+            <li data-rule="special">????????????? (!@#$)</li>
+          </ul>
+        </div>
+
+        <div class="field">
+          <label for="regConfirm">??????????????</label>
+          <div class="input-row" id="regConfirmRow">
+            <input id="regConfirm" type="password" placeholder="?????????????????????">
+          </div>
+          <p class="error-text" id="regError"></p>
+        </div>
+
+        <button type="submit" class="submit" id="registerBtn">??????????</button>
+      </form>
+    </div>
+
+    <p class="switch-line" id="switchLine">
+      ?????????????? <button type="button" id="switchBtn">???????????</button>
+    </p>
   </div>
 </div>
 
-<div id="toast" class="toast"></div>
-
-<script type="module" src="script.js"></script>
-
-<div class="modal-overlay" id="manualOverlay" onclick="closeModalOnOverlay(event)">
-  <div class="modal-box" style="max-width:600px;">
-    <button class="modal-close" onclick="closeManual()">✕</button>
-    <h3>📖 คู่มือการใช้งาน DataLens AI</h3>
-    <div style="margin-top:15px; line-height:1.6; color:var(--text); font-size:14px;">
-      <b>1. การค้นหาข้อมูล</b><br>
-      พิมพ์คำถามของคุณลงในช่องค้นหา AI จะทำการค้นหาหลักฐานจากเอกสารหลักสูตร 4 สาขา (IT, DSBA, AIT, IT-INTER) และสรุปคำตอบให้คุณ<br><br>
-      
-      <b>2. การดูหลักฐานอ้างอิง</b><br>
-      ด้านล่างของคำตอบ จะมีรายชื่อไฟล์และเลขหน้าของเอกสารที่ AI นำมาใช้อ้างอิง คุณสามารถคลิกปุ่ม "ดูข้อความเต็ม" เพื่อตรวจสอบความถูกต้องได้<br><br>
-      
-      <b>3. โหมดมืด (Dark Mode)</b><br>
-      ไปที่เมนู "ตั้งค่า" ด้านซ้ายมือ เพื่อสลับโหมดหน้าจอให้สบายตาขึ้น<br><br>
-      
-      <b>4. ประวัติการค้นหา</b><br>
-      คำถามที่คุณเคยถาม จะถูกบันทึกไว้ในฐานข้อมูล และปรากฏทางด้านขวามือ (หรือในหน้า "ประวัติการค้นหา")
-    </div>
-  </div>
-</div>
-
-</body>
-</html>
+>
