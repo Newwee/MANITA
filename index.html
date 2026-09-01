@@ -10,6 +10,29 @@
 <link rel="stylesheet" href="style.css">
 </head>
 <body>
+
+<div id="auth-page" class="auth-container">
+  <div class="auth-card card">
+    <div style="text-align:center; margin-bottom: 20px;">
+      <div class="logo">
+        <div class="logo-icon"></div>
+        <div class="logo-text">DataLens <span>AI</span><br><small>Evidence Intelligence</small></div>
+      </div>
+      <h2 style="margin-top:20px; color:var(--text);">เข้าสู่ระบบ</h2>
+    </div>
+    
+    <div id="authError" style="color:red; font-size:12px; margin-bottom:10px; text-align:center; display:none;"></div>
+    
+    <div class="auth-form">
+      <input type="email" id="emailInput" placeholder="อีเมล (Email)" class="auth-input">
+      <input type="password" id="passwordInput" placeholder="รหัสผ่าน (Password)" class="auth-input">
+      
+      <button id="loginBtn" class="search-btn" style="width:100%; margin-bottom:10px;" onclick="handleLogin()">เข้าสู่ระบบ</button>
+      <button id="registerBtn" class="header-btn" style="width:100%; margin-bottom:10px;" onclick="handleRegister()">สมัครสมาชิกใหม่</button>
+    </div>
+  </div>
+</div>
+
 <div class="app">
   <aside class="sidebar">
     <div class="brand">
@@ -43,15 +66,19 @@
   <main class="main">
     <!-- ASK PAGE -->
     <div id="page-ask" class="page-section" class="page-section" class="page-section">
-      <header class="top-header">
-        <div>
-          <h1 class="page-title">ถามข้อมูลจากเอกสารหลักสูตร (มคอ.2)</h1>
-          <p class="page-description">ค้นหาคำตอบจากเนื้อหาจริงของเอกสารหลักสูตร 4 สาขา คณะเทคโนโลยีสารสนเทศ สจล.</p>
-        </div>
-        <div class="header-actions">
-          <button class="header-btn" onclick="showToast('ระบบค้นหาข้อมูลจากข้อความจริงที่สกัดจาก PDF ทั้ง 4 ไฟล์ที่อัปโหลด')">ⓘ เกี่ยวกับข้อมูล</button>
-        </div>
-      </header>
+      <header class="top-header" style="display:flex; justify-content:space-between; align-items:flex-start;">
+      <div>
+        <h1 class="page-title">ถามข้อมูลจากเอกสารหลักสูตร (มคอ.2)</h1>
+        <p class="page-subtitle">ค้นหาคำตอบจากเนื้อหาจริงของเอกสารหลักสูตร 4 สาขา คณะเทคโนโลยีสารสนเทศ สจล.</p>
+      </div>
+      
+      <div class="top-actions">
+        <button class="header-btn" onclick="openManual()">📖 คู่มือการใช้งาน</button>
+        <button class="header-btn" onclick="notReady('อัปโหลดเอกสาร')">↑ อัปโหลดเอกสาร</button>
+        <button class="search-btn" style="background:#0f172a; border-radius:6px;" onclick="handleLogout()">🚪 ออกจากระบบ</button>
+      </div>
+
+    </header>
 
       <div class="content-grid">
         <section>
@@ -173,6 +200,27 @@
 
 <div id="toast" class="toast"></div>
 
-<script src="script.js"></script>
+<script type="module" src="script.js"></script>
+
+<div class="modal-overlay" id="manualOverlay" onclick="closeModalOnOverlay(event)">
+  <div class="modal-box" style="max-width:600px;">
+    <button class="modal-close" onclick="closeManual()">✕</button>
+    <h3>📖 คู่มือการใช้งาน DataLens AI</h3>
+    <div style="margin-top:15px; line-height:1.6; color:var(--text); font-size:14px;">
+      <b>1. การค้นหาข้อมูล</b><br>
+      พิมพ์คำถามของคุณลงในช่องค้นหา AI จะทำการค้นหาหลักฐานจากเอกสารหลักสูตร 4 สาขา (IT, DSBA, AIT, IT-INTER) และสรุปคำตอบให้คุณ<br><br>
+      
+      <b>2. การดูหลักฐานอ้างอิง</b><br>
+      ด้านล่างของคำตอบ จะมีรายชื่อไฟล์และเลขหน้าของเอกสารที่ AI นำมาใช้อ้างอิง คุณสามารถคลิกปุ่ม "ดูข้อความเต็ม" เพื่อตรวจสอบความถูกต้องได้<br><br>
+      
+      <b>3. โหมดมืด (Dark Mode)</b><br>
+      ไปที่เมนู "ตั้งค่า" ด้านซ้ายมือ เพื่อสลับโหมดหน้าจอให้สบายตาขึ้น<br><br>
+      
+      <b>4. ประวัติการค้นหา</b><br>
+      คำถามที่คุณเคยถาม จะถูกบันทึกไว้ในฐานข้อมูล และปรากฏทางด้านขวามือ (หรือในหน้า "ประวัติการค้นหา")
+    </div>
+  </div>
+</div>
+
 </body>
 </html>

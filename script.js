@@ -296,3 +296,175 @@ function viewDocument(chunkId) {
 
 function closeModal() { document.getElementById("modalOverlay").classList.remove("show"); }
 function closeModalOnOverlay(e) { if (e.target.id === "modalOverlay") closeModal(); }
+
+
+function openManual() {
+  document.getElementById("manualOverlay").classList.add("show");
+}
+function closeManual() {
+  document.getElementById("manualOverlay").classList.remove("show");
+}
+// Update closeModalOnOverlay to handle manualOverlay
+const oldCloseModalOnOverlay = closeModalOnOverlay;
+closeModalOnOverlay = function(e) {
+  if (e.target.id === "modalOverlay") closeModal();
+  if (e.target.id === "manualOverlay") closeManual();
+}
+
+
+/* =========================================================
+   FIREBASE AUTHENTICATION & DATABASE
+========================================================= */
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
+import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, signOut, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js";
+import { getFirestore, collection, addDoc, getDocs, query, orderBy, limit } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-firestore.js";
+
+// TODO: Replace this with your actual Firebase config
+const firebaseConfig = {
+  apiKey: "AIzaSyD8sSVu5K2kJpH5HR1gA9wfy4rBYQ0urz0",
+  authDomain: "manita-8d44f.firebaseapp.com",
+  projectId: "manita-8d44f",
+  storageBucket: "manita-8d44f.firebasestorage.app",
+  messagingSenderId: "1077451251459",
+  appId: "1:1077451251459:web:a3d1a9e859357e175f5336"
+};
+
+let app, auth, db, currentUser = null;
+
+try {
+  app = initializeApp(firebaseConfig);
+  auth = getAuth(app);
+  db = getFirestore(app);
+
+  onAuthStateChanged(auth, async (user) => {
+    const authPage = document.getElementById("auth-page");
+    const appContainer = document.getElementById("app-container");
+    
+    if (user) {
+      // Logged in
+      currentUser = user;
+      if (authPage) authPage.classList.add("hidden");
+      if (appContainer) appContainer.classList.remove("hidden");
+      await loadHistoryFromDB();
+    } else {
+      // Logged out
+      currentUser = null;
+      if (authPage) authPage.classList.remove("hidden");
+      if (appContainer) appContainer.classList.add("hidden");
+    }
+  });
+} catch (e) {
+  console.warn("Firebase not configured correctly yet.");
+}
+
+window.handleLogin = async function() {
+  const email = document.getElementById("emailInput").value;
+  const password = document.getElementById("passwordInput").value;
+  const errDiv = document.getElementById("authError");
+  if (!email || !password) { errDiv.textContent = "กรุณากรอกอีเมลและรหัสผ่าน"; errDiv.style.display = "block"; return; }
+  
+  try {
+    document.getElementById("loginBtn").textContent = "กำลังเข้าสู่ระบบ...";
+    await signInWithEmailAndPassword(auth, email, password);
+    errDiv.style.display = "none";
+  } catch (error) {
+    errDiv.textContent = "เข้าสู่ระบบล้มเหลว: " + error.message;
+    errDiv.style.display = "block";
+  } finally {
+    document.getElementById("loginBtn").textContent = "เข้าสู่ระบบ";
+  }
+}
+
+window.handleRegister = async function() {
+  const email = document.getElementById("emailInput").value;
+  const password = document.getElementById("passwordInput").value;
+  const errDiv = document.getElementById("authError");
+  if (!email || !password) { errDiv.textContent = "กรุณากรอกอีเมลและรหัสผ่าน"; errDiv.style.display = "block"; return; }
+  
+  try {
+    document.getElementById("registerBtn").textContent = "กำลังสมัครสมาชิก...";
+    await createUserWithEmailAndPassword(auth, email, password);
+    errDiv.style.display = "none";
+    showToast("สมัครสมาชิกสำเร็จ!");
+  } catch (error) {
+    errDiv.textContent = "สมัครสมาชิกล้มเหลว: " + error.message;
+    errDiv.style.display = "block";
+  } finally {
+    document.getElementById("registerBtn").textContent = "สมัครสมาชิกใหม่";
+  }
+}
+
+window.handleLogout = async function() {
+  try {
+    await signOut(auth);
+    showToast("ออกจากระบบสำเร็จ");
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+async function saveHistoryToDB(question, timeStr) {
+  if (!currentUser || !db) return;
+  try {
+    await addDoc(collection(db, "users", currentUser.uid, "history"), {
+      question: question,
+      time: timeStr,
+      timestamp: new Date()
+    });
+  } catch (e) {
+    console.error("Error saving history:", e);
+  }
+}
+
+async function loadHistoryFromDB() {
+  if (!currentUser || !db) return;
+  try {
+    const q = query(collection(db, "users", currentUser.uid, "history"), orderBy("timestamp", "desc"), limit(6));
+    const querySnapshot = await getDocs(q);
+    historyItems = [];
+    querySnapshot.forEach((doc) => {
+      const data = doc.data();
+      historyItems.push({ q: data.question, t: data.time });
+    });
+    renderHistory();
+  } catch (e) {
+    console.error("Error loading history:", e);
+  }
+}
+
+function renderHistory() {
+  document.getElementById("historyList").innerHTML = historyItems.map(h =>
+    `<div class="history-item" onclick="document.getElementById('questionInput').value=${JSON.stringify(h.q)}">
+      <div class="history-icon">◷</div>
+      <div><div class="history-question">${escapeHtml(h.q.slice(0,40))}${h.q.length>40?"...":""}</div><div class="history-time">${h.t} น.</div></div>
+    </div>`
+  ).join("");
+}
+
+// Modify askQuestion to save history using Firebase
+const oldAskQuestion = askQuestion;
+askQuestion = async function() {
+  // We need to hook into the part where history is saved.
+  // Easiest way is to run the old function, but override the history pushing.
+  // Actually, let's just intercept the input value.
+  const input = document.getElementById("questionInput");
+  const q = input.value.trim();
+  if (q) {
+    const timeStr = new Date().toLocaleTimeString("th-TH", {hour:"2-digit", minute:"2-digit"});
+    await saveHistoryToDB(q, timeStr);
+  }
+  await oldAskQuestion();
+}
+
+
+// Make functions globally available for inline HTML onclick handlers
+window.changePage = changePage;
+window.notReady = notReady;
+window.askQuestion = askQuestion;
+window.useQuestion = useQuestion;
+window.toggleTheme = toggleTheme;
+window.viewDocument = viewDocument;
+window.closeModal = closeModal;
+window.closeModalOnOverlay = closeModalOnOverlay;
+window.openManual = openManual;
+window.closeManual = closeManual;
