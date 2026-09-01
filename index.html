@@ -22,12 +22,12 @@
     <nav class="nav">
       <button class="nav-item active" data-page="ask" onclick="changePage(this,'ask')"><span class="nav-icon">⌕</span><span class="nav-label">ถามข้อมูล</span></button>
       <button class="nav-item" data-page="docs" onclick="changePage(this,'docs')"><span class="nav-icon">▣</span><span class="nav-label">เอกสารทั้งหมด</span></button>
-      <button class="nav-item" onclick="notReady('ตารางข้อมูล')"><span class="nav-icon">▦</span><span class="nav-label">ตารางข้อมูล</span></button>
-      <button class="nav-item" onclick="notReady('สรุปประเด็นสำคัญ')"><span class="nav-icon">▤</span><span class="nav-label">สรุปประเด็นสำคัญ</span></button>
-      <button class="nav-item" onclick="notReady('เปรียบเทียบข้อมูล')"><span class="nav-icon">⇄</span><span class="nav-label">เปรียบเทียบข้อมูล</span></button>
-      <button class="nav-item" onclick="notReady('รายงานอัตโนมัติ')"><span class="nav-icon">▧</span><span class="nav-label">รายงานอัตโนมัติ</span></button>
-      <button class="nav-item" onclick="notReady('ประวัติการค้นหา')"><span class="nav-icon">◷</span><span class="nav-label">ประวัติการค้นหา</span></button>
-      <button class="nav-item" onclick="notReady('ตั้งค่า')"><span class="nav-icon">⚙</span><span class="nav-label">ตั้งค่า</span></button>
+      <button class="nav-item" data-page="table" onclick="changePage(this, 'table')"><span class="nav-icon">▦</span><span class="nav-label">ตารางข้อมูล</span></button>
+      <button class="nav-item" data-page="summary" onclick="changePage(this, 'summary')"><span class="nav-icon">▤</span><span class="nav-label">สรุปประเด็นสำคัญ</span></button>
+      <button class="nav-item" data-page="compare" onclick="changePage(this, 'compare')"><span class="nav-icon">⇄</span><span class="nav-label">เปรียบเทียบข้อมูล</span></button>
+      <button class="nav-item" data-page="report" onclick="changePage(this, 'report')"><span class="nav-icon">▧</span><span class="nav-label">รายงานอัตโนมัติ</span></button>
+      <button class="nav-item" data-page="history" onclick="changePage(this, 'history')"><span class="nav-icon">◷</span><span class="nav-label">ประวัติการค้นหา</span></button>
+      <button class="nav-item" data-page="settings" onclick="changePage(this, 'settings')"><span class="nav-icon">⚙</span><span class="nav-label">ตั้งค่า</span></button>
     </nav>
     <div class="sidebar-bottom">
       <div class="system-card">
@@ -42,7 +42,7 @@
 
   <main class="main">
     <!-- ASK PAGE -->
-    <div id="page-ask" class="page-section" class="page-section">
+    <div id="page-ask" class="page-section" class="page-section" class="page-section">
       <header class="top-header">
         <div>
           <h1 class="page-title">ถามข้อมูลจากเอกสารหลักสูตร (มคอ.2)</h1>

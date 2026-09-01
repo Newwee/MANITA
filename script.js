@@ -185,9 +185,32 @@ ${contextBlocks}
       })
     });
     const data = await response.json();
-    const text = (data.choices && data.choices[0] && data.choices[0].message) ? data.choices[0].message.content : "??????????????????????????????????";
-
-    answerBody.textContent = text || "ระบบไม่สามารถสร้างคำตอบได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง";
+    const text = (data.choices && data.choices[0] && data.choices[0].message) ? data.choices[0].message.content : "ระบบไม่สามารถสร้างคำตอบได้ในขณะนี้";
+    
+    let finalHtml = text || "";
+    let thinkContent = "";
+    
+    const thinkMatch = finalHtml.match(/<think>([\s\S]*?)<\/think>/);
+    if (thinkMatch) {
+        thinkContent = thinkMatch[1].trim();
+        finalHtml = finalHtml.replace(/<think>[\s\S]*?<\/think>/, '').trim();
+    }
+    
+    finalHtml = escapeHtml(finalHtml)
+        .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+        .replace(/\*(.*?)\*/g, '<em>$1</em>')
+        .replace(/\n/g, '<br>');
+        
+    if (thinkContent) {
+        finalHtml = `<details style="margin-bottom:15px; font-size:11px; background:var(--blue-light); border:1px solid var(--border); border-radius:6px; padding:10px;">
+          <summary style="cursor:pointer; font-weight:bold; color:var(--blue);">
+            คลิกเพื่อเปิด/ปิด ดูเบื้องหลังการคิดของ AI (ตรวจสอบข้อมูลดิบ)
+          </summary>
+          <pre style="white-space:pre-wrap; margin-top:10px; font-family:inherit; color:var(--text); opacity:0.8;">${escapeHtml(thinkContent)}</pre>
+        </details>` + finalHtml;
+    }
+    
+    answerBody.innerHTML = finalHtml || "ระบบไม่สามารถสร้างคำตอบได้ในขณะนี้";
     confidenceBadge.textContent = "อ้างอิงจากเอกสารจริง";
     confidenceBadge.className = "confidence";
   } catch (err) {
@@ -242,11 +265,23 @@ function closeModalOnOverlay(e) { if (e.target.id === "modalOverlay") closeModal
 /* ---------- Nav ---------- */
 function changePage(el, page) {
   document.querySelectorAll(".nav-item").forEach(i => i.classList.remove("active"));
-  el.classList.add("active");
+  if (el) el.classList.add("active");
   document.querySelectorAll(".page-section").forEach(p => p.classList.add("hidden"));
   const target = document.getElementById("page-" + page);
-  if(target) target.classList.remove("hidden");
+  if (target) target.classList.remove("hidden");
 }
+
+function toggleTheme() {
+  document.body.classList.toggle('dark-mode');
+  const isDark = document.body.classList.contains('dark-mode');
+  localStorage.setItem('theme', isDark ? 'dark' : 'light');
+}
+
+// Load theme on start
+if(localStorage.getItem('theme') === 'dark') {
+  document.body.classList.add('dark-mode');
+}
+
 
 function toggleTheme() {
   document.body.classList.toggle('dark-mode');
