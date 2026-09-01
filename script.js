@@ -158,20 +158,19 @@ async function askQuestion() {
     `[${i + 1}] เอกสาร: ${c.docName} (หน้า ${c.page})\n${c.text}`
   ).join("\n\n---\n\n");
 
-  const prompt = `??????????????????????????????????????????????? ????????????????????????????????????????????????????
+  const prompt = `คุณคือผู้ช่วยตอบคำถามจากเอกสารหลักสูตรของสถาบันการศึกษา ตอบข้อมูลตามความเป็นจริงโดยอ้างอิงจากหลักฐานด้านล่าง
 
-???????:
+หลักฐาน:
 ${contextBlocks}
 
-??????????????: ${question}
+คำถามจากผู้ใช้: ${question}
 
-???????????:
-- ???????????????????????????????????????????????????????? (???????????????????????????? [1] ?????????? "?????????...")
-- ??????????????????????????????????????????
-- ????????????????????`;
+กติกาการตอบ:
+- ตอบเป็นภาษาไทยอย่างเป็นธรรมชาติเหมือนเวลาที่พูดคุยกับผู้ใช้ (ไม่ต้องบอกว่าอ้างอิงจากรหัสเอกสาร [1] และไม่ต้องบอกว่า "จากเอกสารหน้า...")
+- ห้ามสร้างข้อมูลขึ้นมาเองนอกเหนือจากหลักฐาน
+- จัดรูปแบบให้อ่านง่าย`;
 
   try {
-    // ????????? Proxy Server ??????????????????????????? CORS ??????? API Key
     const response = await fetch("/api/chat", {
       method: "POST",
       headers: {
@@ -214,7 +213,7 @@ ${contextBlocks}
     confidenceBadge.textContent = "อ้างอิงจากเอกสารจริง";
     confidenceBadge.className = "confidence";
   } catch (err) {
-    answerBody.textContent = "เกิดข้อผิดพลาดในการเชื่อมต่อ AI: " + err.message + "\n\nหลักฐานที่เกี่ยวข้องที่ค้นพบยังแสดงอยู่ด้านล่าง สามารถอ่านโดยตรงได้";
+    answerBody.textContent = "เกิดข้อผิดพลาดในการเชื่อมต่อ AI: " + err.message + "\n\nหลักฐานที่เกี่ยวข้องที่ค้นพบยังแสดงอยู่ด้านล่าง";
     confidenceBadge.textContent = "เชื่อมต่อ AI ไม่สำเร็จ";
     confidenceBadge.className = "confidence none";
   }
@@ -247,22 +246,6 @@ ${contextBlocks}
   loading.classList.remove("active");
 }
 
-function escapeHtml(s) {
-  return s.replace(/[&<>"']/g, m => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-}
-
-function viewDocument(chunkId) {
-  const c = CHUNKS.find(x => x.id === chunkId);
-  if (!c) return;
-  document.getElementById("modalTitle").textContent = c.docName;
-  document.getElementById("modalMeta").textContent = "หน้า " + c.page + " • รหัสหลักสูตร: " + c.doc;
-  document.getElementById("modalText").textContent = c.text;
-  document.getElementById("modalOverlay").classList.add("show");
-}
-function closeModal() { document.getElementById("modalOverlay").classList.remove("show"); }
-function closeModalOnOverlay(e) { if (e.target.id === "modalOverlay") closeModal(); }
-
-/* ---------- Nav ---------- */
 function changePage(el, page) {
   document.querySelectorAll(".nav-item").forEach(i => i.classList.remove("active"));
   if (el) el.classList.add("active");
@@ -278,27 +261,11 @@ function toggleTheme() {
 }
 
 // Load theme on start
-if(localStorage.getItem('theme') === 'dark') {
+if (localStorage.getItem('theme') === 'dark') {
   document.body.classList.add('dark-mode');
 }
 
-
-function toggleTheme() {
-  document.body.classList.toggle('dark-mode');
-  const isDark = document.body.classList.contains('dark-mode');
-  localStorage.setItem('theme', isDark ? 'dark' : 'light');
-}
-
-// Load theme on start
-if(localStorage.getItem('theme') === 'dark') {
-  document.body.classList.add('dark-mode');
-}
-
-function notReady(name) {
-  showToast("เมนู \u201c" + name + "\u201d ยังไม่ได้เชื่อมต่อข้อมูลจริงใน prototype นี้");
-}
-
-/* ---------- Toast ---------- */
+/* --------- Toast --------- */
 let toastTimer;
 function showToast(message) {
   const toast = document.getElementById("toast");
