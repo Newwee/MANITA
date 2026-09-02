@@ -341,12 +341,25 @@ try {
     const appContainer = document.getElementById("app-container");
     
     if (user) {
-      currentUser = user;
+      window.currentUser = user;
+      // Role Check Logic
+      let role = 'user';
+      if (user.email && user.email.includes('admin')) role = 'admin'; // Simple role check for prototype
+      window.userRole = role;
+      
+      const adminMenu = document.querySelector('.admin-menu');
+      if (adminMenu) {
+          adminMenu.style.display = role === 'admin' ? 'flex' : 'none';
+      }
+      
       if (authPage) authPage.classList.add("hidden");
       if (appContainer) appContainer.classList.remove("hidden");
-      await loadHistoryFromDB();
+      try {
+          await loadHistoryFromDB();
+      } catch(e) {}
     } else {
-      currentUser = null;
+      window.currentUser = null;
+      window.userRole = 'guest';
       if (authPage) authPage.classList.remove("hidden");
       if (appContainer) appContainer.classList.add("hidden");
     }
@@ -435,7 +448,18 @@ window.handleLogout = async function() {
 }
 
 async function saveHistoryToDB(question, timeStr) {
-  if (!currentUser || !db) return;
+  try {
+      let localHist = JSON.parse(localStorage.getItem('datalens_history')) || [];
+      localHist.push({
+          query: question,
+          timestamp: Date.now(),
+          resultsCount: 'หลาย'
+      });
+      if (localHist.length > 50) localHist.shift();
+      localStorage.setItem('datalens_history', JSON.stringify(localHist));
+  } catch(e) {}
+
+  if (typeof currentUser === 'undefined' || !currentUser || typeof db === 'undefined' || !db) return;
   try {
     await addDoc(collection(db, "users", currentUser.uid, "history"), {
       question: question,
@@ -1208,7 +1232,7 @@ const I18N = {
     th: {
         'ask': 'ถามข้อมูล', 'docs': 'เอกสารทั้งหมด', 'data': 'ตารางข้อมูล',
         'summary': 'สรุปประเด็นสำคัญ', 'compare': 'เปรียบเทียบข้อมูล',
-        'report': 'รายงานอัตโนมัติ', 'history': 'ประวัติการค้นหา', 'settings': 'ตั้งค่า',
+        'report': 'รายงานอัตโนมัติ', 'history': 'ประวัติการค้นหา', 'settings': 'ตั้งค่า', 'admin': 'จัดการระบบ (Admin)',
         'desc_ask': 'พิมพ์คำถามของคุณเกี่ยวกับหลักสูตร มคอ.2 แล้ว AI จะช่วยหาคำตอบพร้อมหลักฐานอ้างอิงให้ทันที',
         'desc_docs': 'รายการเอกสารหลักสูตรที่ระบบใช้เป็นฐานข้อมูลจริงในการตอบคำถาม',
         'desc_data': 'โครงสร้างรายวิชาที่สกัดได้จริงจากเอกสารหลักสูตร มคอ.2',
@@ -1216,12 +1240,12 @@ const I18N = {
         'desc_compare': 'เปรียบเทียบความแตกต่างและจุดเด่นของแต่ละหลักสูตรแบบเจาะลึก',
         'desc_report': 'สร้างรายงานสรุปข้อมูลหลักสูตรในรูปแบบ PDF โดยอัตโนมัติ',
         'desc_history': 'บันทึกประวัติคำถามและผลการค้นหาของคุณในระบบ',
-        'desc_settings': 'ปรับแต่งการทำงานของระบบ'
+        'desc_settings': 'ปรับแต่งการทำงานของระบบ', 'desc_admin': 'แผงควบคุมสำหรับผู้ดูแลระบบ จัดการผู้ใช้และดูสถิติ'
     },
     en: {
         'ask': 'Ask DataLens', 'docs': 'All Documents', 'data': 'Data Table',
         'summary': 'Key Summary', 'compare': 'Compare Courses',
-        'report': 'Auto Reports', 'history': 'Search History', 'settings': 'Settings',
+        'report': 'Auto Reports', 'history': 'Search History', 'settings': 'Settings', 'admin': 'System Admin',
         'desc_ask': 'Ask questions about TQF.2 curriculums and our AI will find answers with citations.',
         'desc_docs': 'List of curriculum documents used as the ground truth database.',
         'desc_data': 'Extracted course structures from TQF.2 documents.',
@@ -1229,7 +1253,7 @@ const I18N = {
         'desc_compare': 'In-depth comparison between different curriculums.',
         'desc_report': 'Automatically generate PDF summary reports for curriculums.',
         'desc_history': 'Your previous questions and search results.',
-        'desc_settings': 'Customize your application preferences.'
+        'desc_settings': 'Customize your application preferences.', 'desc_admin': 'Admin dashboard for user management and statistics'
     }
 };
 

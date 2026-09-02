@@ -121,7 +121,7 @@
   </div>
 </div>
 
-<div class="app-container hidden" id="app-container">
+<div class="app-container" id="app-container">
 <div class="app">
   <aside class="sidebar">
     <div class="brand">
@@ -140,6 +140,7 @@
       <button class="nav-item" data-page="report" onclick="changePage(this,'report')"><span class="nav-icon">▧</span><span class="nav-label">รายงานอัตโนมัติ</span></button>
       <button class="nav-item" data-page="history" onclick="changePage(this,'history')"><span class="nav-icon">◷</span><span class="nav-label">ประวัติการค้นหา</span></button>
       <button class="nav-item" data-page="settings" onclick="changePage(this,'settings')"><span class="nav-icon">⚙</span><span class="nav-label">ตั้งค่า</span></button>
+      <button class="nav-item admin-menu" data-page="admin" onclick="changePage(this,'admin')" style="display:none;"><span class="nav-icon">🛡️</span><span class="nav-label">จัดการระบบ (Admin)</span></button>
     </nav>
     <div class="sidebar-bottom">
       <div class="system-card">
@@ -393,7 +394,40 @@
         </div>
       </div>
     </div>
+  
+    <!-- ADMIN PAGE -->
+    <div id="page-admin" class="page-section hidden">
+      <header class="top-header">
+        <div>
+          <h1 class="page-title">จัดการระบบ (Admin)</h1>
+          <p class="page-description">แผงควบคุมสำหรับผู้ดูแลระบบ จัดการผู้ใช้และดูสถิติ</p>
+        </div>
+      </header>
+      <div class="card right-card" style="padding:18px;">
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px;">
+            <div style="background:var(--surface-2); padding:20px; border-radius:8px; text-align:center;">
+                <h3 style="margin:0; color:var(--text-dim);">ผู้ใช้งานทั้งหมด</h3>
+                <div style="font-size:32px; color:var(--blue); font-weight:bold; margin-top:10px;">12</div>
+            </div>
+            <div style="background:var(--surface-2); padding:20px; border-radius:8px; text-align:center;">
+                <h3 style="margin:0; color:var(--text-dim);">คำถามในระบบ</h3>
+                <div style="font-size:32px; color:var(--gold); font-weight:bold; margin-top:10px;">1,402</div>
+            </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>อีเมล</th><th>Role</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+            <tbody>
+                <tr><td>admin@datalens.ai</td><td>Admin</td><td><span style="color:var(--sage);">Active</span></td><td><button class="header-btn" style="padding:4px 8px; font-size:12px;">แก้ไข</button></td></tr>
+                <tr><td>user1@kmitl.ac.th</td><td>User</td><td><span style="color:var(--sage);">Active</span></td><td><button class="header-btn" style="padding:4px 8px; font-size:12px;">แก้ไข</button></td></tr>
+                <tr><td>test@example.com</td><td>User</td><td><span style="color:var(--brick);">Banned</span></td><td><button class="header-btn" style="padding:4px 8px; font-size:12px;">แก้ไข</button></td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
   </main>
+
 </div>
 
 <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
