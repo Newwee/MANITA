@@ -99,6 +99,70 @@ textarea::placeholder { color:#8b96a8; }
 .doc-card h4 { font-size:13px; margin-bottom:6px; color:#182338; }
 .doc-card .doc-meta { font-size:10px; color:var(--muted); line-height:1.6; }
 .doc-code { display:inline-block; background:var(--blue-light); color:var(--blue); font-size:9px; font-weight:700; padding:2px 8px; border-radius:20px; margin-bottom:8px; }
+/* --- New pages: data table / summary / compare / report / history / settings --- */
+.filter-row { display:flex; gap:14px; flex-wrap:wrap; margin-bottom:16px; align-items:flex-end; }
+.filter-label { display:block; font-size:9px; color:var(--muted); margin-bottom:5px; }
+.select-input { background:#fff; border:1px solid #dbe2ec; border-radius:7px; padding:8px 11px; font-size:11px; color:#3c4758; min-width:190px; }
+body.dark-mode .select-input { background:var(--white); border-color:var(--border); color:var(--text); }
+.data-table { width:100%; border-collapse:collapse; font-size:11px; }
+.data-table th { text-align:left; background:#f7f9fc; color:#5b6779; font-weight:700; padding:9px 10px; border-bottom:1px solid var(--border); white-space:nowrap; }
+.data-table td { padding:9px 10px; border-bottom:1px solid #eef1f6; color:#33405a; vertical-align:top; }
+.data-table tr:last-child td { border-bottom:none; }
+.data-table tbody tr:hover { background:#fafbfd; }
+body.dark-mode .data-table th { background:#1e293b; color:#94a3b8; border-color:var(--border); }
+body.dark-mode .data-table td { border-color:#243044; color:var(--text); }
+body.dark-mode .data-table tbody tr:hover { background:#1e293b; }
+.table-footer { display:flex; justify-content:space-between; align-items:center; margin-top:12px; font-size:10px; color:var(--muted); flex-wrap:wrap; gap:8px; }
+.pagination { display:flex; gap:5px; }
+.pagination button { border:1px solid var(--border); background:#fff; border-radius:6px; width:26px; height:26px; font-size:10px; color:#3c4758; }
+.pagination button.active { background:var(--blue); color:#fff; border-color:var(--blue); }
+.pagination button:disabled { opacity:.4; cursor:default; }
+body.dark-mode .pagination button { background:var(--white); border-color:var(--border); color:var(--text); }
+.summary-card { border:1px solid var(--border); border-radius:10px; padding:16px; background:#fcfdff; }
+body.dark-mode .summary-card { background:#0f172a; }
+.ai-tag { display:inline-flex; align-items:center; gap:5px; background:var(--blue-light); color:var(--blue); font-size:9px; font-weight:700; padding:3px 9px; border-radius:20px; margin-bottom:12px; }
+.summary-block { margin-bottom:16px; }
+.summary-block:last-child { margin-bottom:0; }
+.summary-block h4 { font-size:12px; margin-bottom:7px; color:#182338; }
+body.dark-mode .summary-block h4 { color:#f1f5f9; }
+.summary-block p, .summary-block .summary-text { font-size:11.5px; line-height:1.85; color:#33405a; white-space:pre-wrap; }
+body.dark-mode .summary-block .summary-text { color:var(--text); }
+.credit-bar-row { display:flex; align-items:center; gap:9px; margin-bottom:9px; font-size:10.5px; }
+.credit-bar-label { width:150px; flex-shrink:0; color:#4d596a; }
+body.dark-mode .credit-bar-label { color:var(--text); }
+.credit-bar-track { flex:1; height:9px; background:#eef1f6; border-radius:5px; overflow:hidden; }
+body.dark-mode .credit-bar-track { background:#243044; }
+.credit-bar-fill { height:100%; background:var(--blue); border-radius:5px; }
+.credit-bar-value { width:70px; text-align:right; flex-shrink:0; color:#182338; font-weight:700; }
+body.dark-mode .credit-bar-value { color:var(--text); }
+.checkbox-row { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:18px; }
+.checkbox-pill { display:flex; align-items:center; gap:7px; border:1px solid var(--border); border-radius:20px; padding:8px 14px; font-size:11px; color:#3c4758; cursor:pointer; }
+.checkbox-pill.checked { background:var(--blue-light); border-color:var(--blue); color:var(--blue); font-weight:700; }
+body.dark-mode .checkbox-pill { color:var(--text); }
+.compare-empty { font-size:11px; color:var(--muted); padding:20px 0; text-align:center; }
+.metric-cards { display:grid; grid-template-columns:repeat(3,1fr); gap:10px; margin:16px 0; }
+.metric-card { background:#f7f9fc; border-radius:9px; padding:14px; text-align:center; }
+body.dark-mode .metric-card { background:#0f172a; }
+.metric-card .metric-value { font-size:20px; font-weight:800; color:var(--blue); }
+.metric-card .metric-label { font-size:9px; color:var(--muted); margin-top:4px; }
+.report-card { border:1px solid var(--border); border-radius:10px; padding:18px; margin-top:16px; background:#fff; }
+body.dark-mode .report-card { background:var(--white); }
+.report-header { display:flex; justify-content:space-between; align-items:flex-start; gap:10px; margin-bottom:6px; flex-wrap:wrap; }
+.report-title { font-size:14px; font-weight:700; color:#182338; }
+body.dark-mode .report-title { color:#f1f5f9; }
+.report-time { font-size:9px; color:var(--muted); margin-top:3px; }
+.tag-pill { display:inline-block; background:var(--blue-light); color:var(--blue); font-size:9px; font-weight:600; padding:3px 8px; border-radius:12px; margin:1px 3px 1px 0; }
+.settings-grid { display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:16px; }
+.settings-tabs { display:flex; gap:4px; border-bottom:1px solid var(--border); margin-bottom:18px; flex-wrap:wrap; }
+.settings-tab { background:none; border:none; padding:9px 13px; font-size:11px; color:var(--muted); border-bottom:2px solid transparent; }
+.settings-tab.active { color:var(--blue); border-color:var(--blue); font-weight:700; }
+.settings-row { display:flex; justify-content:space-between; align-items:center; padding:12px 0; border-bottom:1px solid #eef1f6; gap:14px; flex-wrap:wrap; }
+.settings-row:last-child { border-bottom:none; }
+body.dark-mode .settings-row { border-color:#243044; }
+.settings-row-label { font-size:11.5px; color:#33405a; }
+body.dark-mode .settings-row-label { color:var(--text); }
+.settings-row-desc { font-size:9.5px; color:var(--muted); margin-top:2px; }
+@media (max-width:900px) { .settings-grid { grid-template-columns:1fr; } .metric-cards { grid-template-columns:1fr; } }
 .modal-overlay { position:fixed; inset:0; background:rgba(7,20,50,.5); display:none; align-items:center; justify-content:center; z-index:1000; padding:20px; }
 .modal-overlay.show { display:flex; }
 .modal-box { background:#fff; border-radius:12px; max-width:600px; width:100%; max-height:80vh; overflow-y:auto; padding:22px; }

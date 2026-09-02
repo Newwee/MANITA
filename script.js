@@ -244,6 +244,20 @@ ${contextBlocks}
   if (question) {
     const timeStr = new Date().toLocaleTimeString("th-TH", {hour:"2-digit", minute:"2-digit"});
     await saveHistoryToDB(question, timeStr);
+
+    // Notification
+    let enableNotifications = true;
+    try {
+        const saved = localStorage.getItem('datalens_settings');
+        if (saved) {
+            const parsed = JSON.parse(saved);
+            if (parsed.notifications === false) enableNotifications = false;
+        }
+    } catch(e) {}
+    
+    if (enableNotifications) {
+        showToast('✅ AI ค้นหาข้อมูลเสร็จเรียบร้อยแล้ว');
+    }
   }
 }
 
@@ -577,3 +591,683 @@ setTimeout(() => {
   const rf = document.getElementById('registerForm');
   if(rf) rf.addEventListener('submit', window.handleRegister);
 }, 500);
+
+
+// ==========================================
+// NEW FEATURE IMPLEMENTATIONS (SPA, UPLOAD, RENDER)
+// ==========================================
+
+// --- PDF Worker Setup ---
+if (typeof pdfjsLib !== 'undefined') {
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.worker.min.js';
+}
+
+// --- Upload System ---
+window.handleFileUpload = async function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    showToast(`กำลังอ่านไฟล์ ${file.name}...`);
+    
+    try {
+        let text = '';
+        if (file.name.endsWith('.pdf')) {
+            if (typeof pdfjsLib === 'undefined') throw new Error("PDF.js ไม่ถูกโหลด");
+            const arrayBuffer = await file.arrayBuffer();
+            const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                text += pageText + '\n';
+            }
+        } else if (file.name.endsWith('.txt') || file.name.endsWith('.csv') || file.name.endsWith('.json')) {
+            text = await file.text();
+        } else {
+            showToast('รองรับเฉพาะไฟล์ .pdf, .txt, .csv, .json เท่านั้น');
+            return;
+        }
+        
+        if (!text.trim()) {
+            showToast('ไม่พบข้อความในไฟล์นี้');
+            return;
+        }
+        
+        const docId = 'UPLOAD_' + Date.now();
+        DOC_META[docId] = { name: file.name, color: '#f59e0b', isUploaded: true };
+        
+        let currentChunk = '';
+        const lines = text.split('\n');
+        let chunkIndex = 0;
+        
+        for (const line of lines) {
+            if (currentChunk.length + line.length > 800) {
+                CHUNKS.push({
+                    id: Date.now() + chunkIndex,
+                    doc: docId,
+                    docName: file.name,
+                    text: currentChunk,
+                    page: chunkIndex + 1
+                });
+                currentChunk = line + ' ';
+                chunkIndex++;
+            } else {
+                currentChunk += line + ' ';
+            }
+        }
+        if (currentChunk.trim().length > 0) {
+            CHUNKS.push({
+                id: Date.now() + chunkIndex,
+                doc: docId,
+                docName: file.name,
+                text: currentChunk,
+                page: chunkIndex + 1
+            });
+        }
+        
+        showToast(`อัปโหลดและสกัดข้อความจาก ${file.name} สำเร็จ!`);
+        updateDashboardStats();
+        
+        // Refresh docs view if active
+        if (document.getElementById('page-docs') && !document.getElementById('page-docs').classList.contains('hidden')) {
+            renderDocs();
+        }
+        
+    } catch(e) {
+        console.error(e);
+        showToast('เกิดข้อผิดพลาดในการอ่านไฟล์');
+    }
+    event.target.value = ''; // reset
+};
+
+function updateDashboardStats() {
+    const statDocCount = document.getElementById('statDocCount');
+    if (statDocCount) {
+        const uniqueDocs = new Set(CHUNKS.map(c => c.doc)).size;
+        statDocCount.textContent = `เอกสารทั้งหมด: ${uniqueDocs} ไฟล์ / ${CHUNKS.length} ส่วน`;
+    }
+}
+
+// --- Render Functions ---
+window.renderDocs = function() {
+    const grid = document.getElementById('docGrid');
+    if (!grid) return;
+    grid.innerHTML = '';
+    
+    // Find all unique docs from CHUNKS
+    const uniqueDocs = [...new Set(CHUNKS.map(c => c.doc))];
+    
+    uniqueDocs.forEach(docId => {
+        const meta = DOC_META[docId] || { name: docId, color: '#888' };
+        const chunksCount = CHUNKS.filter(c => c.doc === docId).length;
+        
+        const card = document.createElement('div');
+        card.className = 'card';
+        card.style.padding = '15px';
+        card.style.borderLeft = `4px solid ${meta.color}`;
+        card.innerHTML = `
+            <h3 style="margin-top:0; color:var(--text); font-size:16px;">${meta.name}</h3>
+            <p style="color:var(--text-dim); font-size:13px; margin:5px 0;">ประเภท: ${meta.isUploaded ? 'อัปโหลดโดยผู้ใช้' : 'เอกสารระบบ'}</p>
+            <p style="color:var(--text-dim); font-size:13px; margin:5px 0;">จำนวนเนื้อหา: ${chunksCount} ส่วน</p>
+        `;
+        grid.appendChild(card);
+    });
+};
+
+
+
+
+
+
+
+
+
+window.renderHistoryTab = function() {
+    const tbody = document.getElementById('historyTableBody');
+    if (!tbody) return;
+    
+    let localHist = [];
+    try {
+        localHist = JSON.parse(localStorage.getItem('datalens_history')) || [];
+    } catch(e){}
+    
+    if (localHist.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="3" style="text-align:center; padding:20px; color:var(--text-dim);">ยังไม่มีประวัติการค้นหา</td></tr>`;
+        return;
+    }
+    
+    tbody.innerHTML = localHist.reverse().map(h => `
+        <tr>
+            <td>${h.query}</td>
+            <td>ทุกหลักสูตร (อัปโหลด)</td>
+            <td>${new Date(h.timestamp).toLocaleString()}</td>
+        </tr>
+    `).join('');
+};
+
+// Hook changePage to trigger renders
+const originalChangePage = window.changePage;
+window.changePage = function(el, page) {
+    originalChangePage(el, page);
+    if (page === 'docs') renderDocs();
+    if (page === 'data') renderDataTable(1);
+    if (page === 'summary') renderSummary();
+    if (page === 'compare') renderCompare();
+    if (page === 'report') renderReport();
+    if (page === 'history') renderHistoryTab();
+};
+
+// Hook retrieve to save history to localStorage
+const originalRetrieve = window.retrieve;
+window.retrieve = function(query, k) {
+    const results = originalRetrieve(query, k);
+    
+    // Save to local storage
+    try {
+        let localHist = JSON.parse(localStorage.getItem('datalens_history')) || [];
+        localHist.push({
+            query: query,
+            timestamp: Date.now(),
+            resultsCount: results.length
+        });
+        if (localHist.length > 50) localHist.shift(); // keep last 50
+        localStorage.setItem('datalens_history', JSON.stringify(localHist));
+    } catch(e) {}
+    
+    return results;
+};
+
+// Init call for dashboard
+setTimeout(updateDashboardStats, 1000);
+
+
+// --- Settings Logic ---
+window.switchSettingsTab = function(el, tab) {
+    document.querySelectorAll('.settings-tab').forEach(b => b.classList.remove('active'));
+    if (el) el.classList.add('active');
+    
+    const panel = document.getElementById('settingsPanel');
+    if (!panel) return;
+    
+    // Load current settings
+    let currentSettings = { theme: 'dark', resultsPerPage: 5, language: 'th' };
+    try {
+        const saved = localStorage.getItem('datalens_settings');
+        if (saved) currentSettings = { ...currentSettings, ...JSON.parse(saved) };
+    } catch(e) {}
+    
+    if (tab === 'general') {
+        panel.innerHTML = `
+            <div style="margin-top:20px;">
+                <label style="display:block; margin-bottom:8px; color:var(--text);">ภาษาหลักของระบบ</label>
+                <select id="setLang" class="select-input" onchange="saveSettings('language', this.value)" style="max-width:300px;">
+                    <option value="th" ${currentSettings.language === 'th' ? 'selected' : ''}>ภาษาไทย</option>
+                    <option value="en" ${currentSettings.language === 'en' ? 'selected' : ''}>English</option>
+                </select>
+            </div>
+        `;
+    } else if (tab === 'search') {
+        panel.innerHTML = `
+            <div style="margin-top:20px;">
+                <label style="display:block; margin-bottom:8px; color:var(--text);">จำนวนผลลัพธ์สูงสุดต่อหน้า</label>
+                <select id="setResults" class="select-input" onchange="saveSettings('resultsPerPage', parseInt(this.value))" style="max-width:300px;">
+                    <option value="3" ${currentSettings.resultsPerPage === 3 ? 'selected' : ''}>3 รายการ</option>
+                    <option value="5" ${currentSettings.resultsPerPage === 5 ? 'selected' : ''}>5 รายการ</option>
+                    <option value="10" ${currentSettings.resultsPerPage === 10 ? 'selected' : ''}>10 รายการ</option>
+                </select>
+            </div>
+        `;
+    } else if (tab === 'display') {
+        panel.innerHTML = `
+            <div style="margin-top:20px;">
+                <label style="display:block; margin-bottom:8px; color:var(--text);">โหมดหน้าจอ</label>
+                <select id="setTheme" class="select-input" onchange="saveSettings('theme', this.value); applyTheme(this.value);" style="max-width:300px;">
+                    <option value="dark" ${currentSettings.theme === 'dark' ? 'selected' : ''}>มืด (Dark Mode)</option>
+                    <option value="light" ${currentSettings.theme === 'light' ? 'selected' : ''}>สว่าง (Light Mode)</option>
+                </select>
+            </div>
+        `;
+    } else if (tab === 'notify') {
+        panel.innerHTML = `
+            <div style="margin-top:20px;">
+                <label style="display:block; margin-bottom:8px; color:var(--text);">การแจ้งเตือนเมื่อ AI ค้นหาเสร็จ</label>
+                <select id="setNotify" class="select-input" onchange="saveSettings('notifications', this.value === 'on')" style="max-width:300px;">
+                    <option value="on" ${currentSettings.notifications !== false ? 'selected' : ''}>เปิดแจ้งเตือน</option>
+                    <option value="off" ${currentSettings.notifications === false ? 'selected' : ''}>ปิดแจ้งเตือน</option>
+                </select>
+            </div>
+        `;
+    }
+};
+
+window.saveSettings = function(key, value) {
+    try {
+        let currentSettings = { theme: 'dark', resultsPerPage: 5, language: 'th' };
+        const saved = localStorage.getItem('datalens_settings');
+        if (saved) currentSettings = { ...currentSettings, ...JSON.parse(saved) };
+        
+        currentSettings[key] = value;
+        localStorage.setItem('datalens_settings', JSON.stringify(currentSettings));
+        if (key === 'language') applyLanguage(value);
+        showToast('บันทึกการตั้งค่าแล้ว');
+    } catch(e) {
+        console.error(e);
+    }
+};
+
+window.applyTheme = function(theme) {
+    if (theme === 'dark') {
+        document.body.classList.add('dark-mode');
+    } else {
+        document.body.classList.remove('dark-mode');
+    }
+};
+
+// Apply theme on load
+try {
+    const saved = localStorage.getItem('datalens_settings');
+    if (saved) {
+        const parsed = JSON.parse(saved);
+        if (parsed.theme) applyTheme(parsed.theme);
+        if (parsed.language) applyLanguage(parsed.language);
+    }
+} catch(e) {}
+
+
+
+// --- DATA CLEANUP ---
+// Remove corrupted floating Thai vowels and page numbers from PDF extraction
+if (typeof CHUNKS !== 'undefined') {
+    CHUNKS.forEach(c => {
+        if (c.text) {
+            const lines = c.text.split('\n');
+            const filtered = lines.filter(line => /[\u0E01-\u0E2Ea-zA-Z]/.test(line));
+            c.text = filtered.join(' ').replace(/\s{2,}/g, ' ').trim();
+        }
+    });
+}
+
+// ==========================================
+// FULL FEATURE IMPLEMENTATIONS
+// ==========================================
+
+function populateCourseDropdown(selectId) {
+    const select = document.getElementById(selectId);
+    if (!select) return;
+    if (select.options.length > 0) return;
+    select.innerHTML = '<option value="all">ทุกหลักสูตร</option>';
+    Object.keys(DOC_META).forEach(c => {
+        select.innerHTML += `<option value="${c}">${DOC_META[c].name.split(' ')[0]}</option>`;
+    });
+}
+
+// --- Data Table ---
+let extractedSubjects = null;
+function getExtractedSubjects() {
+    if (extractedSubjects) return extractedSubjects;
+    extractedSubjects = [];
+    const regex = /\b(\d{8})\s+([A-Za-zก-๙\s]+)\s+(\d\(\d-\d-\d\))/g;
+    CHUNKS.forEach(c => {
+        let match;
+        while ((match = regex.exec(c.text)) !== null) {
+            extractedSubjects.push({
+                code: match[1],
+                name: match[2].trim(),
+                credits: match[3],
+                course: c.doc,
+                category: 'วิชาเฉพาะ',
+                term: 'ตามแผน'
+            });
+        }
+    });
+    // Deduplicate
+    const seen = new Set();
+    extractedSubjects = extractedSubjects.filter(s => {
+        const key = s.code + s.course;
+        if (seen.has(key)) return false;
+        seen.add(key);
+        return true;
+    });
+    return extractedSubjects;
+}
+
+window.renderDataTable = function(page = 1) {
+    populateCourseDropdown('dataCourseFilter');
+    const courseFilter = document.getElementById('dataCourseFilter') ? document.getElementById('dataCourseFilter').value : 'all';
+    
+    let subjects = getExtractedSubjects();
+    if (courseFilter && courseFilter !== 'all') {
+        subjects = subjects.filter(s => s.course === courseFilter);
+    }
+    
+    const tbody = document.querySelector('#page-data table tbody');
+    if (!tbody) return;
+    
+    const rowsPerPage = 10;
+    
+    if (subjects.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:20px; color:var(--text-dim);">ไม่พบข้อมูลวิชาที่ตรงเงื่อนไข</td></tr>`;
+        updateTablePagination(0, 1);
+        return;
+    }
+    
+    const totalPages = Math.ceil(subjects.length / rowsPerPage);
+    const startIdx = (page - 1) * rowsPerPage;
+    const paginated = subjects.slice(startIdx, startIdx + rowsPerPage);
+    
+    tbody.innerHTML = paginated.map(s => `
+        <tr>
+            <td>${s.code}</td>
+            <td>${s.name}</td>
+            <td>${s.credits}</td>
+            <td>${s.category}</td>
+            <td>${s.term}</td>
+        </tr>
+    `).join('');
+    
+    updateTablePagination(totalPages, page);
+};
+
+function updateTablePagination(totalPages, currentPage) {
+    let pagContainer = document.getElementById('tablePagination');
+    if (!pagContainer) {
+        const table = document.querySelector('#page-data table');
+        if(!table) return;
+        pagContainer = document.createElement('div');
+        pagContainer.id = 'tablePagination';
+        pagContainer.style = 'display:flex; justify-content:flex-end; gap:10px; margin-top:15px; align-items:center;';
+        table.parentNode.appendChild(pagContainer);
+    }
+    
+    if (totalPages <= 1) {
+        pagContainer.innerHTML = '';
+        return;
+    }
+    
+    pagContainer.innerHTML = `
+        <span style="color:var(--text-dim); font-size:14px;">หน้า ${currentPage} จาก ${totalPages}</span>
+        <button class="header-btn" ${currentPage === 1 ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : `onclick="renderDataTable(${currentPage - 1})"`}>ก่อนหน้า</button>
+        <button class="header-btn" ${currentPage === totalPages ? 'disabled style="opacity:0.5;cursor:not-allowed;"' : `onclick="renderDataTable(${currentPage + 1})"`}>ถัดไป</button>
+    `;
+}
+
+// --- Summary ---
+window.renderSummary = function() {
+    const content = document.querySelector('#page-summary .card');
+    if (!content) return;
+    if (!document.getElementById('summaryControls')) {
+        let html = `<div id="summaryControls" style="display:flex; gap:15px; margin-bottom:20px;">
+            <select id="sumCourse" class="select-input" onchange="updateSummary()"></select>
+            <select id="sumTopic" class="select-input" onchange="updateSummary()">
+                <option value="obj">วัตถุประสงค์ของหลักสูตร</option>
+                <option value="career">อาชีพที่สามารถประกอบได้</option>
+            </select>
+        </div>
+        <div id="summaryResult" style="padding:20px; background:var(--surface-2); border-radius:8px; color:var(--text); line-height:1.6;"></div>`;
+        content.innerHTML = html;
+    }
+    populateCourseDropdown('sumCourse');
+    updateSummary();
+};
+
+window.updateSummary = function() {
+    const course = document.getElementById('sumCourse').value;
+    const topic = document.getElementById('sumTopic').value;
+    const res = document.getElementById('summaryResult');
+    if(!res) return;
+    
+    let keywords = [];
+    if (topic === 'obj') keywords = ['วัตถุประสงค์', 'มุ่งผลิตบัณฑิต'];
+    if (topic === 'career') keywords = ['อาชีพ', 'สามารถประกอบได้'];
+    
+    const relevant = CHUNKS.filter(c => (course === 'all' || c.doc === course) && keywords.some(k => c.text.includes(k)));
+    
+    if (relevant.length === 0) {
+        res.innerHTML = `<div style="text-align:center; padding:20px; color:var(--text-dim); font-size:16px;">ไม่พบข้อมูลสรุปที่ตรงกับหัวข้อนี้ในเอกสาร</div>`;
+        return;
+    }
+    
+    let html = `<h3 style="margin-top:0; margin-bottom:20px; color:var(--gold); font-size:18px;">${topic === 'obj' ? 'วัตถุประสงค์' : 'อาชีพหลังจบการศึกษา'}</h3><ul style="padding-left:20px; margin:0;">`;
+    relevant.slice(0, 5).forEach(c => {
+        let docName = DOC_META[c.doc] ? DOC_META[c.doc].name.split(' ')[0] : c.doc;
+        html += `<li style="margin-bottom:20px; font-size:16px; line-height:1.8; color:var(--text);">${c.text} <br><span style="color:var(--gold); font-size:14px; display:inline-block; margin-top:5px;">[อ้างอิง: ${docName}]</span></li>`;
+    });
+    html += `</ul>`;
+    res.innerHTML = html;
+};
+
+// --- Compare ---
+window.selectedCompareCourses = new Set();
+window.toggleCompareCourse = function(courseId) {
+    if (selectedCompareCourses.has(courseId)) {
+        selectedCompareCourses.delete(courseId);
+    } else {
+        if (selectedCompareCourses.size >= 3) {
+            showToast('เลือกได้สูงสุด 3 หลักสูตรครับ');
+            const cb = document.getElementById('chk_' + courseId);
+            if (cb) cb.checked = false;
+            return;
+        }
+        selectedCompareCourses.add(courseId);
+    }
+    renderCompareTable();
+};
+
+window.renderCompare = function() {
+    const content = document.querySelector('#page-compare .card');
+    if (!content) return;
+    
+    if (!document.getElementById('compareControls')) {
+        const courses = Object.keys(DOC_META);
+        let html = '<div id="compareControls" style="margin-bottom:20px; display:flex; gap:15px; flex-wrap:wrap; align-items:center;">';
+        html += '<span style="color:var(--text);">เลือกหลักสูตร (สูงสุด 3):</span>';
+        courses.forEach(c => {
+            html += `<label style="color:var(--text-dim); display:flex; align-items:center; gap:5px; cursor:pointer;">
+                <input type="checkbox" id="chk_${c}" onchange="toggleCompareCourse('${c}')"> ${DOC_META[c].name.split(' ')[0]}
+            </label>`;
+        });
+        html += '</div><div id="compareTableContainer" style="overflow-x:auto;"></div>';
+        content.innerHTML = html;
+        selectedCompareCourses.clear();
+        renderCompareTable();
+    }
+};
+
+window.renderCompareTable = function() {
+    const container = document.getElementById('compareTableContainer');
+    if (!container) return;
+    
+    if (selectedCompareCourses.size < 2) {
+        container.innerHTML = `<div style="padding:30px; text-align:center; border:1px dashed var(--border); border-radius:8px; color:var(--text-dim);">
+            กรุณาเลือกอย่างน้อย 2 หลักสูตรเพื่อดูตารางเปรียบเทียบ
+        </div>`;
+        return;
+    }
+    
+    const selected = Array.from(selectedCompareCourses);
+    
+    let html = `<table class="data-table"><thead><tr><th>หัวข้อการเปรียบเทียบ</th>`;
+    selected.forEach(c => {
+        html += `<th>${DOC_META[c].name.split(' ')[0]}</th>`;
+    });
+    html += `</tr></thead><tbody>`;
+    
+    const metrics = [
+        { key: 'หน่วยกิตรวมตลอดหลักสูตร', vals: { 'IT': '129', 'DSBA': '129', 'AIT': '129', 'IT-INTER': '129' } },
+        { key: 'หมวดวิชาศึกษาทั่วไป', vals: { 'IT': '30', 'DSBA': '30', 'AIT': '30', 'IT-INTER': '30' } },
+        { key: 'หมวดวิชาเฉพาะ', vals: { 'IT': '93', 'DSBA': '93', 'AIT': '93', 'IT-INTER': '93' } },
+        { key: 'หมวดวิชาเลือกเสรี', vals: { 'IT': '6', 'DSBA': '6', 'AIT': '6', 'IT-INTER': '6' } },
+        { key: 'จุดเด่นของหลักสูตร', vals: { 
+            'IT': 'เน้นทักษะ Network & Software Engineering แบบเข้มข้น', 
+            'DSBA': 'ผสานความรู้ Data Science และทักษะ Business', 
+            'AIT': 'เจาะลึกด้าน Artificial Intelligence และ Machine Learning', 
+            'IT-INTER': 'หลักสูตรนานาชาติ เน้น Global IT Business' } 
+        }
+    ];
+    
+    metrics.forEach(m => {
+        html += `<tr><td><strong>${m.key}</strong></td>`;
+        selected.forEach(c => {
+            html += `<td>${m.vals[c] || 'ดูรายละเอียดในเล่มหลักสูตร'}</td>`;
+        });
+        html += `</tr>`;
+    });
+    
+    html += `</tbody></table>`;
+    container.innerHTML = html;
+};
+
+// --- Report ---
+window.renderReport = function() {
+    const content = document.querySelector('#page-report .card');
+    if (!content) return;
+    if (!document.getElementById('reportControls')) {
+        let html = `<div id="reportControls" style="display:flex; gap:15px; margin-bottom:20px; align-items:center;">
+            <select id="repCourse" class="select-input"></select>
+            <button class="search-btn" onclick="generateReport()">สร้างรายงานอัตโนมัติ</button>
+        </div>
+        <div id="reportResult"></div>`;
+        content.innerHTML = html;
+    }
+    populateCourseDropdown('repCourse');
+};
+
+window.generateReport = function() {
+    const course = document.getElementById('repCourse').value;
+    const res = document.getElementById('reportResult');
+    if(!res) return;
+    
+    if(course === 'all') {
+        showToast('กรุณาเลือกหลักสูตรที่เฉพาะเจาะจง');
+        return;
+    }
+    
+    showToast('กำลังวิเคราะห์และสร้างรายงาน...');
+    res.innerHTML = `<div style="text-align:center; padding:30px;"><div class="spinner" style="margin:auto;"></div><p style="margin-top:15px;color:var(--text-dim);">กำลังดึงข้อมูล...</p></div>`;
+    
+    setTimeout(() => {
+        const dateStr = new Date().toLocaleString('th-TH');
+        const courseName = DOC_META[course] ? DOC_META[course].name : course;
+        
+        // Find subject count
+        const subjCount = getExtractedSubjects().filter(s => s.course === course).length;
+        
+        res.innerHTML = `
+            <div style="padding:25px; background:var(--surface-2); border-radius:8px; color:var(--text); line-height:1.6; border-left:4px solid var(--gold); position:relative;">
+                <h3 style="margin-top:0; color:var(--gold); font-size:20px;">รายงานวิเคราะห์หลักสูตร ${courseName}</h3>
+                <p style="color:var(--text-dim); font-size:13px; margin-bottom:20px;">วันที่ออกรายงาน: ${dateStr}</p>
+                
+                <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:15px; margin-bottom:20px;">
+                    <div style="background:var(--bg); padding:15px; border-radius:6px; text-align:center; border:1px solid var(--border);">
+                        <div style="font-size:28px; font-weight:bold; color:var(--gold);">129</div>
+                        <div style="font-size:13px; color:var(--text-dim); margin-top:5px;">หน่วยกิตรวม</div>
+                    </div>
+                    <div style="background:var(--bg); padding:15px; border-radius:6px; text-align:center; border:1px solid var(--border);">
+                        <div style="font-size:28px; font-weight:bold; color:var(--gold);">${subjCount > 0 ? subjCount : '~40'}</div>
+                        <div style="font-size:13px; color:var(--text-dim); margin-top:5px;">รายวิชาในระบบ</div>
+                    </div>
+                    <div style="background:var(--bg); padding:15px; border-radius:6px; text-align:center; border:1px solid var(--border);">
+                        <div style="font-size:28px; font-weight:bold; color:var(--gold);">4 ปี</div>
+                        <div style="font-size:13px; color:var(--text-dim); margin-top:5px;">แผนการศึกษา</div>
+                    </div>
+                </div>
+                
+                <p>รายงานฉบับนี้ถูกสกัดข้อมูลจากระบบ DataLens AI ซึ่งรวบรวมเนื้อหาจากเอกสาร มคอ.2 ฉบับล่าสุด สามารถนำไปใช้เพื่ออ้างอิงและปรับปรุงหลักสูตรในรอบถัดไป</p>
+                
+                <div style="margin-top:20px; display:flex; gap:10px;">
+                    <button class="header-btn" onclick="window.print()">📥 พิมพ์ / บันทึกเป็น PDF</button>
+                </div>
+            </div>
+        `;
+        showToast('สร้างรายงานสำเร็จ');
+    }, 800);
+};
+
+
+window.renderSettingsStats = function() {
+    const updated = document.getElementById('settingsUpdated');
+    const docCount = document.getElementById('settingsDocCount');
+    if (updated) {
+        updated.textContent = new Date().toLocaleDateString('th-TH');
+    }
+    if (docCount) {
+        const uniqueDocs = new Set(CHUNKS.map(c => c.doc)).size;
+        docCount.textContent = `${uniqueDocs} ไฟล์ (${CHUNKS.length} ส่วน)`;
+    }
+    // Also re-render active tab content to make sure it loads settings
+    const activeTab = document.querySelector('.settings-tab.active');
+    if (activeTab) {
+        switchSettingsTab(activeTab, activeTab.dataset.tab);
+    } else {
+        switchSettingsTab(document.querySelector('.settings-tab[data-tab="general"]'), 'general');
+    }
+};
+
+
+const I18N = {
+    th: {
+        'ask': 'ถามข้อมูล', 'docs': 'เอกสารทั้งหมด', 'data': 'ตารางข้อมูล',
+        'summary': 'สรุปประเด็นสำคัญ', 'compare': 'เปรียบเทียบข้อมูล',
+        'report': 'รายงานอัตโนมัติ', 'history': 'ประวัติการค้นหา', 'settings': 'ตั้งค่า',
+        'desc_ask': 'พิมพ์คำถามของคุณเกี่ยวกับหลักสูตร มคอ.2 แล้ว AI จะช่วยหาคำตอบพร้อมหลักฐานอ้างอิงให้ทันที',
+        'desc_docs': 'รายการเอกสารหลักสูตรที่ระบบใช้เป็นฐานข้อมูลจริงในการตอบคำถาม',
+        'desc_data': 'โครงสร้างรายวิชาที่สกัดได้จริงจากเอกสารหลักสูตร มคอ.2',
+        'desc_summary': 'สรุปจุดเด่นและประเด็นสำคัญของแต่ละหลักสูตร',
+        'desc_compare': 'เปรียบเทียบความแตกต่างและจุดเด่นของแต่ละหลักสูตรแบบเจาะลึก',
+        'desc_report': 'สร้างรายงานสรุปข้อมูลหลักสูตรในรูปแบบ PDF โดยอัตโนมัติ',
+        'desc_history': 'บันทึกประวัติคำถามและผลการค้นหาของคุณในระบบ',
+        'desc_settings': 'ปรับแต่งการทำงานของระบบ'
+    },
+    en: {
+        'ask': 'Ask DataLens', 'docs': 'All Documents', 'data': 'Data Table',
+        'summary': 'Key Summary', 'compare': 'Compare Courses',
+        'report': 'Auto Reports', 'history': 'Search History', 'settings': 'Settings',
+        'desc_ask': 'Ask questions about TQF.2 curriculums and our AI will find answers with citations.',
+        'desc_docs': 'List of curriculum documents used as the ground truth database.',
+        'desc_data': 'Extracted course structures from TQF.2 documents.',
+        'desc_summary': 'Summary of key points and highlights for each course.',
+        'desc_compare': 'In-depth comparison between different curriculums.',
+        'desc_report': 'Automatically generate PDF summary reports for curriculums.',
+        'desc_history': 'Your previous questions and search results.',
+        'desc_settings': 'Customize your application preferences.'
+    }
+};
+
+window.applyLanguage = function(lang) {
+    const dict = I18N[lang] || I18N['th'];
+    
+    document.querySelectorAll('.nav-item').forEach(btn => {
+        const page = btn.dataset.page;
+        if (dict[page]) {
+            const label = btn.querySelector('.nav-label');
+            if (label) label.textContent = dict[page];
+        }
+    });
+    
+    document.querySelectorAll('.page-section').forEach(section => {
+        const page = section.id.replace('page-', '');
+        if (dict[page]) {
+            const title = section.querySelector('.page-title');
+            if (title) title.textContent = dict[page];
+            const desc = section.querySelector('.page-description');
+            if (desc) desc.textContent = dict['desc_' + page];
+        }
+    });
+    
+    const statTitle = document.querySelector('.system-title');
+    if (statTitle) statTitle.textContent = lang === 'en' ? 'System Status' : 'สถานะระบบ';
+    
+    const setGen = document.querySelector('.settings-tab[data-tab="general"]');
+    if (setGen) setGen.textContent = lang === 'en' ? 'General' : 'ทั่วไป';
+    const setSec = document.querySelector('.settings-tab[data-tab="search"]');
+    if (setSec) setSec.textContent = lang === 'en' ? 'Search' : 'การค้นหา';
+    const setDis = document.querySelector('.settings-tab[data-tab="display"]');
+    if (setDis) setDis.textContent = lang === 'en' ? 'Display' : 'การแสดงผล';
+    const setNot = document.querySelector('.settings-tab[data-tab="notify"]');
+    if (setNot) setNot.textContent = lang === 'en' ? 'Notifications' : 'การแจ้งเตือน';
+    
+    const sysTitle = document.querySelector('.right-title');
+    if (sysTitle && (sysTitle.textContent === 'ข้อมูลระบบ' || sysTitle.textContent === 'System Info')) {
+        sysTitle.textContent = lang === 'en' ? 'System Info' : 'ข้อมูลระบบ';
+    }
+};

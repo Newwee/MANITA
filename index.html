@@ -8,6 +8,8 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="style.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.4.120/pdf.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/papaparse/5.4.1/papaparse.min.js"></script>
 </head>
 <body>
 
@@ -132,18 +134,18 @@
     <nav class="nav">
       <button class="nav-item active" data-page="ask" onclick="changePage(this,'ask')"><span class="nav-icon">⌕</span><span class="nav-label">ถามข้อมูล</span></button>
       <button class="nav-item" data-page="docs" onclick="changePage(this,'docs')"><span class="nav-icon">▣</span><span class="nav-label">เอกสารทั้งหมด</span></button>
-      <button class="nav-item" onclick="notReady('ตารางข้อมูล')"><span class="nav-icon">▦</span><span class="nav-label">ตารางข้อมูล</span></button>
-      <button class="nav-item" onclick="notReady('สรุปประเด็นสำคัญ')"><span class="nav-icon">▤</span><span class="nav-label">สรุปประเด็นสำคัญ</span></button>
-      <button class="nav-item" onclick="notReady('เปรียบเทียบข้อมูล')"><span class="nav-icon">⇄</span><span class="nav-label">เปรียบเทียบข้อมูล</span></button>
-      <button class="nav-item" onclick="notReady('รายงานอัตโนมัติ')"><span class="nav-icon">▧</span><span class="nav-label">รายงานอัตโนมัติ</span></button>
-      <button class="nav-item" onclick="notReady('ประวัติการค้นหา')"><span class="nav-icon">◷</span><span class="nav-label">ประวัติการค้นหา</span></button>
-      <button class="nav-item" onclick="notReady('ตั้งค่า')"><span class="nav-icon">⚙</span><span class="nav-label">ตั้งค่า</span></button>
+      <button class="nav-item" data-page="data" onclick="changePage(this,'data')"><span class="nav-icon">▦</span><span class="nav-label">ตารางข้อมูล</span></button>
+      <button class="nav-item" data-page="summary" onclick="changePage(this,'summary')"><span class="nav-icon">▤</span><span class="nav-label">สรุปประเด็นสำคัญ</span></button>
+      <button class="nav-item" data-page="compare" onclick="changePage(this,'compare')"><span class="nav-icon">⇄</span><span class="nav-label">เปรียบเทียบข้อมูล</span></button>
+      <button class="nav-item" data-page="report" onclick="changePage(this,'report')"><span class="nav-icon">▧</span><span class="nav-label">รายงานอัตโนมัติ</span></button>
+      <button class="nav-item" data-page="history" onclick="changePage(this,'history')"><span class="nav-icon">◷</span><span class="nav-label">ประวัติการค้นหา</span></button>
+      <button class="nav-item" data-page="settings" onclick="changePage(this,'settings')"><span class="nav-icon">⚙</span><span class="nav-label">ตั้งค่า</span></button>
     </nav>
     <div class="sidebar-bottom">
       <div class="system-card">
         <div class="system-title">สถานะระบบ</div>
         <div class="status-line"><span class="dot"></span>พร้อมใช้งาน (ข้อมูลจริง)</div>
-        <div class="status-line">AI: Claude (live)</div>
+        <div class="status-line">AI: Thai LLM (live)</div>
         <div class="status-line">Retrieval: Local keyword search</div>
         <div class="status-line" id="statDocCount">เอกสาร: - หลักสูตร</div>
       </div>
@@ -152,7 +154,7 @@
 
   <main class="main">
     <!-- ASK PAGE -->
-    <div id="page-ask">
+    <div id="page-ask" class="page-section">
       <header class="top-header">
         <div>
           <h1 class="page-title">ถามข้อมูลจากเอกสารหลักสูตร (มคอ.2)</h1>
@@ -160,7 +162,8 @@
         </div>
         <div class="top-actions" style="display: flex; gap: 10px;">
         <button class="header-btn" onclick="openManual()">📖 คู่มือการใช้งาน</button>
-        <button class="header-btn" onclick="notReady('อัปโหลดเอกสาร')">↑ อัปโหลดเอกสาร</button>
+        <input type="file" id="uploadFile" accept=".pdf,.txt,.csv,.json" style="display:none;" onchange="handleFileUpload(event)">
+        <button class="header-btn" onclick="document.getElementById('uploadFile').click()">↑ อัปโหลดเอกสาร</button>
         <button class="search-btn" style="background:#0f172a; border-radius:6px;" onclick="handleLogout()">🚪 ออกจากระบบ</button>
       </div>
       </header>
@@ -224,12 +227,12 @@
 
       <footer class="footer">
         <span>คำตอบทั้งหมดอ้างอิงจากเอกสารหลักสูตรที่อัปโหลดเท่านั้น ระบบไม่สร้างข้อมูลขึ้นมาเอง</span>
-        <span>Powered by Claude</span>
+        <span>Powered by Thai LLM</span>
       </footer>
     </div>
 
     <!-- DOCS PAGE -->
-    <div id="page-docs" class="hidden">
+    <div id="page-docs" class="page-section hidden">
       <header class="top-header">
         <div>
           <h1 class="page-title">เอกสารทั้งหมด</h1>
@@ -238,6 +241,156 @@
       </header>
       <div class="card right-card" style="padding:20px;">
         <div class="doc-grid" id="docGrid"></div>
+      </div>
+    </div>
+
+    <!-- DATA TABLE PAGE -->
+    <div id="page-data" class="page-section hidden">
+      <header class="top-header">
+        <div>
+          <h1 class="page-title">ตารางข้อมูล</h1>
+          <p class="page-description">โครงสร้างรายวิชาที่สกัดได้จริงจากเอกสารหลักสูตร มคอ.2</p>
+        </div>
+      </header>
+      <div class="card right-card" style="padding:18px;">
+        <div class="filter-row">
+          <div>
+            <label class="filter-label">เลือกหลักสูตร</label>
+            <select id="dataCourseFilter" class="select-input" onchange="renderDataTable(1)"></select>
+          </div>
+          <div>
+            <label class="filter-label">เลือกประเภทข้อมูล</label>
+            <select id="dataTypeFilter" class="select-input" onchange="renderDataTable(1)">
+              <option value="structure">โครงสร้างหลักสูตร</option>
+            </select>
+          </div>
+        </div>
+        <div style="overflow-x:auto;">
+          <table class="data-table">
+            <thead><tr><th>รหัสวิชา</th><th>ชื่อวิชา</th><th>หน่วยกิต</th><th>หมวดวิชา</th><th>ภาคการศึกษา</th></tr></thead>
+            <tbody id="dataTableBody"></tbody>
+          </table>
+        </div>
+        <div class="table-footer">
+          <span id="dataTableSummary"></span>
+          <div class="pagination" id="dataPagination"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- KEY SUMMARY PAGE -->
+    <div id="page-summary" class="page-section hidden">
+      <header class="top-header">
+        <div>
+          <h1 class="page-title">สรุปประเด็นสำคัญ</h1>
+          <p class="page-description">สรุปสาระสำคัญของหลักสูตร สกัดจากเอกสารต้นฉบับโดย AI</p>
+        </div>
+      </header>
+      <div class="card right-card" style="padding:18px;">
+        <div class="filter-row">
+          <div>
+            <label class="filter-label">เลือกหลักสูตร</label>
+            <select id="summaryCourseFilter" class="select-input" onchange="renderSummary()"></select>
+          </div>
+          <div>
+            <label class="filter-label">เลือกหัวข้อ</label>
+            <select id="summaryTopicFilter" class="select-input" onchange="renderSummary()">
+              <option value="all">ภาพรวมหลักสูตร</option>
+              <option value="objective">วัตถุประสงค์ของหลักสูตร</option>
+              <option value="structure">โครงสร้างหลักสูตร</option>
+              <option value="career">อาชีพที่สามารถประกอบได้</option>
+            </select>
+          </div>
+        </div>
+        <div id="summaryContent"></div>
+      </div>
+    </div>
+
+    <!-- COMPARE PAGE -->
+    <div id="page-compare" class="page-section hidden">
+      <header class="top-header">
+        <div>
+          <h1 class="page-title">เปรียบเทียบข้อมูลระหว่างหลักสูตร</h1>
+          <p class="page-description">เลือกได้สูงสุด 3 หลักสูตร เพื่อเปรียบเทียบข้อมูลจากเอกสารจริง</p>
+        </div>
+      </header>
+      <div class="card right-card" style="padding:18px;">
+        <div class="checkbox-row" id="compareCheckboxes"></div>
+        <div style="overflow-x:auto;">
+          <table class="data-table" id="compareTable"></table>
+        </div>
+      </div>
+    </div>
+
+    <!-- AUTO REPORT PAGE -->
+    <div id="page-report" class="page-section hidden">
+      <header class="top-header">
+        <div>
+          <h1 class="page-title">รายงานอัตโนมัติ</h1>
+          <p class="page-description">สร้างรายงานสรุปหลักสูตรจากข้อมูลที่มีอยู่จริงในระบบ</p>
+        </div>
+      </header>
+      <div class="card right-card" style="padding:18px;">
+        <div class="filter-row">
+          <div>
+            <label class="filter-label">เลือกประเภทรายงาน</label>
+            <select id="reportTypeSelect" class="select-input">
+              <option value="summary">รายงานสรุปหลักสูตร</option>
+            </select>
+          </div>
+          <div>
+            <label class="filter-label">เลือกหลักสูตร</label>
+            <select id="reportCourseSelect" class="select-input"></select>
+          </div>
+          <button class="search-btn" style="margin-left:0;" onclick="generateReport()">สร้างรายงาน</button>
+        </div>
+        <div id="reportPreview"></div>
+      </div>
+    </div>
+
+    <!-- SEARCH HISTORY PAGE -->
+    <div id="page-history" class="page-section hidden">
+      <header class="top-header">
+        <div>
+          <h1 class="page-title">ประวัติการค้นหา</h1>
+          <p class="page-description">บันทึกประวัติคำถามและผลการค้นหาของคุณในระบบ</p>
+        </div>
+      </header>
+      <div class="card right-card" style="padding:18px;">
+        <table class="data-table">
+          <thead><tr><th>คำถาม</th><th>หลักสูตรที่เกี่ยวข้อง</th><th>วันที่และเวลา</th></tr></thead>
+          <tbody id="historyTableBody"></tbody>
+        </table>
+        <div id="historyEmpty" class="hidden" style="font-size:11px;color:var(--muted);padding:14px 0;">ยังไม่มีประวัติการค้นหาในระบบ</div>
+      </div>
+    </div>
+
+    <!-- SETTINGS PAGE -->
+    <div id="page-settings" class="page-section hidden">
+      <header class="top-header">
+        <div>
+          <h1 class="page-title">ตั้งค่า</h1>
+          <p class="page-description">ปรับแต่งการทำงานของระบบ</p>
+        </div>
+      </header>
+      <div class="settings-grid">
+        <div class="card right-card">
+          <div class="settings-tabs" id="settingsTabs">
+            <button class="settings-tab active" data-tab="general" onclick="switchSettingsTab(this,'general')">ทั่วไป</button>
+            <button class="settings-tab" data-tab="search" onclick="switchSettingsTab(this,'search')">การค้นหา</button>
+            <button class="settings-tab" data-tab="display" onclick="switchSettingsTab(this,'display')">การแสดงผล</button>
+            <button class="settings-tab" data-tab="notify" onclick="switchSettingsTab(this,'notify')">การแจ้งเตือน</button>
+          </div>
+          <div class="settings-panel" id="settingsPanel"></div>
+        </div>
+        <div class="card right-card">
+          <div class="right-title">ข้อมูลระบบ</div>
+          <div class="stats-grid">
+            <div class="stat"><div class="stat-label">เวอร์ชัน</div><div class="stat-value">1.0.0</div></div>
+            <div class="stat"><div class="stat-label">อัปเดตล่าสุด</div><div class="stat-value" id="settingsUpdated">-</div></div>
+            <div class="stat" style="grid-column:1/3;"><div class="stat-label">จำนวนฐานข้อมูลเอกสาร</div><div class="stat-value" id="settingsDocCount">-</div></div>
+          </div>
+        </div>
       </div>
     </div>
   </main>
