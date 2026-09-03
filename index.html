@@ -199,7 +199,13 @@
                 <textarea id="questionInput" placeholder="เช่น หลักสูตร DSBA มีจำนวนหน่วยกิตรวมเท่าไหร่ และมีวิชาบังคับกลุ่มใดบ้าง"></textarea>
                 <div class="question-controls">
                   <div class="controls-left">
-                    <span class="select-btn" id="scopeBtn" role="button" tabindex="0">◉ ค้นหาทุกหลักสูตร ⌄</span>
+                    <select id="scopeBtn" class="select-input" style="max-width: 200px; height: 38px; padding: 6px 32px 6px 12px; font-size: 13px;">
+                      <option value="all">◉ ค้นหาทุกหลักสูตร</option>
+                      <option value="IT">หลักสูตร IT</option>
+                      <option value="DSBA">หลักสูตร DSBA</option>
+                      <option value="AIT">หลักสูตร AIT</option>
+                      <option value="IT-INTER">หลักสูตร IT (นานาชาติ)</option>
+                    </select>
                     <span class="shortcut-hint"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> เพื่อค้นหา</span>
                   </div>
                   <button id="searchButton" class="search-btn" onclick="askQuestion()">ค้นหาคำตอบ <span>⌕</span></button>
