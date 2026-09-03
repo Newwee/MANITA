@@ -13,19 +13,20 @@
 </head>
 <body>
 
+<!-- AUTH OVERLAY -->
 <div id="auth-page" class="auth-container">
   <div class="auth-card">
     <div class="brand">
-      <svg width="26" height="26" viewBox="0 0 26 26" fill="none">
-        <path d="M4 15C4 8 9 4 13 4C17 4 20 6.5 20 10C20 13 17.5 14.5 15 14.7L15 18" stroke="#c9a227" stroke-width="2" stroke-linecap="round" fill="none"/>
-        <circle cx="15" cy="21.5" r="1.4" fill="#c9a227"/>
+      <svg width="28" height="28" viewBox="0 0 26 26" fill="none">
+        <path d="M4 15C4 8 9 4 13 4C17 4 20 6.5 20 10C20 13 17.5 14.5 15 14.7L15 18" stroke="var(--blue)" stroke-width="2.2" stroke-linecap="round" fill="none"/>
+        <circle cx="15" cy="21.5" r="1.5" fill="var(--blue)"/>
       </svg>
-      <span class="brand-name">DataLens AI</span>
+      <span class="brand-name">DataLens <span>AI</span></span>
     </div>
 
     <div id="headline">
       <h1 class="auth-h1">ยินดีต้อนรับกลับมา</h1>
-      <p class="subtitle">เข้าสู่ระบบเพื่อคุยกับผู้ช่วย AI ของคุณต่อ</p>
+      <p class="subtitle">เข้าสู่ระบบเพื่อค้นคว้าและสนทนากับ AI มคอ.2</p>
     </div>
 
     <div class="tabs">
@@ -35,12 +36,12 @@
     </div>
 
     <div class="forms">
-      <!-- LOGIN -->
+      <!-- LOGIN FORM -->
       <form class="form active" id="loginForm" novalidate>
         <div class="field">
-          <label for="loginEmail">อีเมล</label>
+          <label for="loginEmail">อีเมลสถาบัน / ผู้ใช้งาน</label>
           <div class="input-row" id="loginEmailRow">
-            <input id="loginEmail" type="email" placeholder="you@example.com" required>
+            <input id="loginEmail" type="email" placeholder="you@kmitl.ac.th" required autocomplete="email">
           </div>
         </div>
 
@@ -48,18 +49,18 @@
           <label for="loginPassword">รหัสผ่าน</label>
           <div class="mascot-wrap">
             <svg class="mascot" id="loginMascot" viewBox="0 0 120 90">
-              <ellipse cx="60" cy="48" rx="40" ry="34" fill="#2c2238" stroke="#3a2e48" stroke-width="2"/>
-              <circle class="eye" cx="46" cy="44" r="4.5" fill="#f3eee7"/>
-              <circle class="eye" cx="74" cy="44" r="4.5" fill="#f3eee7"/>
-              <path d="M49 63 Q60 69 71 63" stroke="#a79bb8" stroke-width="2" fill="none" stroke-linecap="round"/>
-              <g class="hand hand-l"><ellipse cx="46" cy="44" rx="15" ry="13" fill="#c9a227"/></g>
-              <g class="hand hand-r"><ellipse cx="74" cy="44" rx="15" ry="13" fill="#c9a227"/></g>
+              <ellipse cx="60" cy="48" rx="40" ry="34" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+              <circle class="eye" cx="46" cy="44" r="4.5" fill="#f8fafc"/>
+              <circle class="eye" cx="74" cy="44" r="4.5" fill="#f8fafc"/>
+              <path d="M49 63 Q60 69 71 63" stroke="#94a3b8" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <g class="hand hand-l"><ellipse cx="46" cy="44" rx="14" ry="12" fill="#2563eb"/></g>
+              <g class="hand hand-r"><ellipse cx="74" cy="44" rx="14" ry="12" fill="#2563eb"/></g>
             </svg>
           </div>
           <div class="input-row" id="loginPasswordRow">
-            <input id="loginPassword" type="password" placeholder="รหัสผ่านของคุณ" required>
-            <button type="button" class="eye-btn" data-toggle="loginPassword" data-mascot="loginMascot" aria-label="แสดง/ซ่อนรหัสผ่าน">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M2 12C2 12 5.5 5.5 12 5.5C18.5 5.5 22 12 22 12C22 12 18.5 18.5 12 18.5C5.5 18.5 2 12 2 12Z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/></svg>
+            <input id="loginPassword" type="password" placeholder="รหัสผ่านของคุณ" required autocomplete="current-password">
+            <button type="button" class="eye-btn" data-toggle="loginPassword" data-mascot="loginMascot" aria-label="แสดงหรือซ่อนรหัสผ่าน">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12C2 12 5.5 5.5 12 5.5C18.5 5.5 22 12 22 12C22 12 18.5 18.5 12 18.5C5.5 18.5 2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
           <p class="error-text" id="loginError"></p>
@@ -68,12 +69,12 @@
         <button type="submit" class="submit" id="loginBtn">เข้าสู่ระบบ</button>
       </form>
 
-      <!-- REGISTER -->
+      <!-- REGISTER FORM -->
       <form class="form" id="registerForm" novalidate>
         <div class="field">
           <label for="regEmail">อีเมล</label>
           <div class="input-row" id="regEmailRow">
-            <input id="regEmail" type="email" placeholder="you@example.com" required>
+            <input id="regEmail" type="email" placeholder="you@kmitl.ac.th" required autocomplete="email">
           </div>
         </div>
 
@@ -81,18 +82,18 @@
           <label for="regPassword">ตั้งรหัสผ่าน</label>
           <div class="mascot-wrap">
             <svg class="mascot" id="regMascot" viewBox="0 0 120 90">
-              <ellipse cx="60" cy="48" rx="40" ry="34" fill="#2c2238" stroke="#3a2e48" stroke-width="2"/>
-              <circle class="eye" cx="46" cy="44" r="4.5" fill="#f3eee7"/>
-              <circle class="eye" cx="74" cy="44" r="4.5" fill="#f3eee7"/>
-              <path d="M49 63 Q60 69 71 63" stroke="#a79bb8" stroke-width="2" fill="none" stroke-linecap="round"/>
-              <g class="hand hand-l"><ellipse cx="46" cy="44" rx="15" ry="13" fill="#c9a227"/></g>
-              <g class="hand hand-r"><ellipse cx="74" cy="44" rx="15" ry="13" fill="#c9a227"/></g>
+              <ellipse cx="60" cy="48" rx="40" ry="34" fill="#1e293b" stroke="#334155" stroke-width="2"/>
+              <circle class="eye" cx="46" cy="44" r="4.5" fill="#f8fafc"/>
+              <circle class="eye" cx="74" cy="44" r="4.5" fill="#f8fafc"/>
+              <path d="M49 63 Q60 69 71 63" stroke="#94a3b8" stroke-width="2" fill="none" stroke-linecap="round"/>
+              <g class="hand hand-l"><ellipse cx="46" cy="44" rx="14" ry="12" fill="#2563eb"/></g>
+              <g class="hand hand-r"><ellipse cx="74" cy="44" rx="14" ry="12" fill="#2563eb"/></g>
             </svg>
           </div>
           <div class="input-row" id="regPasswordRow">
-            <input id="regPassword" type="password" placeholder="อย่างน้อย 6 ตัวอักษร">
-            <button type="button" class="eye-btn" data-toggle="regPassword" data-mascot="regMascot" aria-label="แสดง/ซ่อนรหัสผ่าน">
-              <svg width="19" height="19" viewBox="0 0 24 24" fill="none"><path d="M2 12C2 12 5.5 5.5 12 5.5C18.5 5.5 22 12 22 12C22 12 18.5 18.5 12 18.5C5.5 18.5 2 12 2 12Z" stroke="currentColor" stroke-width="1.6"/><circle cx="12" cy="12" r="3" stroke="currentColor" stroke-width="1.6"/></svg>
+            <input id="regPassword" type="password" placeholder="อย่างน้อย 6 ตัวอักษร" autocomplete="new-password">
+            <button type="button" class="eye-btn" data-toggle="regPassword" data-mascot="regMascot" aria-label="แสดงหรือซ่อนรหัสผ่าน">
+              <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M2 12C2 12 5.5 5.5 12 5.5C18.5 5.5 22 12 22 12C22 12 18.5 18.5 12 18.5C5.5 18.5 2 12 2 12Z"/><circle cx="12" cy="12" r="3"/></svg>
             </button>
           </div>
           <ul class="checklist" id="checklist">
@@ -104,362 +105,412 @@
         </div>
 
         <div class="field">
-          <label for="regConfirm">ยืนยันรหัสผ่าน</label>
+          <label for="regConfirm">ยืนยันรหัสผ่านอีกครั้ง</label>
           <div class="input-row" id="regConfirmRow">
-            <input id="regConfirm" type="password" placeholder="พิมพ์รหัสผ่านอีกครั้ง">
+            <input id="regConfirm" type="password" placeholder="พิมพ์รหัสผ่านให้ตรงกัน" autocomplete="new-password">
           </div>
           <p class="error-text" id="regError"></p>
         </div>
 
-        <button type="submit" class="submit" id="registerBtn">สร้างบัญชี</button>
+        <button type="submit" class="submit" id="registerBtn">สร้างบัญชีผู้ใช้</button>
       </form>
     </div>
 
     <p class="switch-line" id="switchLine">
-      ยังไม่มีบัญชี? <button type="button" id="switchBtn">สมัครสมาชิก</button>
+      ยังไม่มีบัญชี? <button type="button" id="switchBtn">สมัครสมาชิกทันที</button>
     </p>
   </div>
 </div>
 
+<!-- MAIN APP CONTAINER -->
 <div class="app-container" id="app-container">
-<div class="app">
-  <aside class="sidebar">
-    <div class="brand">
+
+  <!-- Mobile Header -->
+  <header class="mobile-header">
+    <div class="brand-inline">
       <div class="brand-icon"></div>
-      <div>
-        <div class="brand-name">DataLens <span>AI</span></div>
-        <div class="brand-subtitle">Evidence Intelligence</div>
-      </div>
+      <div class="brand-name">DataLens <span>AI</span></div>
     </div>
-    <nav class="nav">
-      <button class="nav-item active" data-page="ask" onclick="changePage(this,'ask')"><span class="nav-icon">⌕</span><span class="nav-label">ถามข้อมูล</span></button>
-      <button class="nav-item" data-page="docs" onclick="changePage(this,'docs')"><span class="nav-icon">▣</span><span class="nav-label">เอกสารทั้งหมด</span></button>
-      <button class="nav-item" data-page="data" onclick="changePage(this,'data')"><span class="nav-icon">▦</span><span class="nav-label">ตารางข้อมูล</span></button>
-      <button class="nav-item" data-page="summary" onclick="changePage(this,'summary')"><span class="nav-icon">▤</span><span class="nav-label">สรุปประเด็นสำคัญ</span></button>
-      <button class="nav-item" data-page="compare" onclick="changePage(this,'compare')"><span class="nav-icon">⇄</span><span class="nav-label">เปรียบเทียบข้อมูล</span></button>
-      <button class="nav-item" data-page="report" onclick="changePage(this,'report')"><span class="nav-icon">▧</span><span class="nav-label">รายงานอัตโนมัติ</span></button>
-      <button class="nav-item" data-page="history" onclick="changePage(this,'history')"><span class="nav-icon">◷</span><span class="nav-label">ประวัติการค้นหา</span></button>
-      <button class="nav-item" data-page="settings" onclick="changePage(this,'settings')"><span class="nav-icon">⚙</span><span class="nav-label">ตั้งค่า</span></button>
-      <button class="nav-item admin-menu" data-page="admin" onclick="changePage(this,'admin')" style="display:none;"><span class="nav-icon">🛡️</span><span class="nav-label">จัดการระบบ (Admin)</span></button>
-    </nav>
-    <div class="sidebar-bottom">
-      <div class="system-card">
-        <div class="system-title">สถานะระบบ</div>
-        <div class="status-line"><span class="dot"></span>พร้อมใช้งาน (ข้อมูลจริง)</div>
-        <div class="status-line">AI: Thai LLM (live)</div>
-        <div class="status-line">Retrieval: Local keyword search</div>
-        <div class="status-line" id="statDocCount">เอกสาร: - หลักสูตร</div>
-      </div>
-    </div>
-  </aside>
+    <button class="hamburger-btn" onclick="toggleSidebar()" aria-label="เปิดเมนูนำทาง">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 12h18M3 6h18M3 18h18"/></svg>
+    </button>
+  </header>
 
-  <main class="main">
-    <!-- ASK PAGE -->
-    <div id="page-ask" class="page-section">
-      <header class="top-header">
+  <!-- Sidebar Overlay for Mobile -->
+  <div class="sidebar-overlay" id="sidebarOverlay" onclick="toggleSidebar()"></div>
+
+  <div class="app">
+    <!-- SIDEBAR -->
+    <aside class="sidebar">
+      <div class="brand">
+        <div class="brand-icon"></div>
         <div>
-          <h1 class="page-title">ถามข้อมูลจากเอกสารหลักสูตร (มคอ.2)</h1>
-          <p class="page-description">ค้นหาคำตอบจากเนื้อหาจริงของเอกสารหลักสูตร 4 สาขา คณะเทคโนโลยีสารสนเทศ สจล.</p>
+          <div class="brand-name">DataLens <span>AI</span></div>
+          <div class="brand-subtitle">Evidence Intelligence</div>
         </div>
-        <div class="top-actions" style="display: flex; gap: 10px;">
-        <button class="header-btn" onclick="openManual()">📖 คู่มือการใช้งาน</button>
-        <input type="file" id="uploadFile" accept=".pdf,.txt,.csv,.json" style="display:none;" onchange="handleFileUpload(event)">
-        <button class="header-btn" onclick="document.getElementById('uploadFile').click()">↑ อัปโหลดเอกสาร</button>
-        <button class="search-btn" style="background:#0f172a; border-radius:6px;" onclick="handleLogout()">🚪 ออกจากระบบ</button>
       </div>
-      </header>
 
-      <div class="content-grid">
-        <section>
-          <div class="card question-card">
-            <div class="section-title">พิมพ์คำถามของคุณ</div>
-            <div class="question-box">
-              <textarea id="questionInput" placeholder="เช่น หลักสูตร DSBA มีจำนวนหน่วยกิตรวมเท่าไหร่ และมีวิชาบังคับกลุ่มใดบ้าง"></textarea>
-              <div class="question-controls">
-                <span class="select-btn" id="scopeBtn">◉ ค้นหาทุกหลักสูตร ⌄</span>
-                <button id="searchButton" class="search-btn" onclick="askQuestion()">ค้นหาคำตอบ <span>⌕</span></button>
+      <nav class="nav">
+        <button class="nav-item active" data-page="ask" onclick="changePage(this,'ask')"><span class="nav-icon">⌕</span><span class="nav-label">ถามข้อมูล</span></button>
+        <button class="nav-item" data-page="docs" onclick="changePage(this,'docs')"><span class="nav-icon">▣</span><span class="nav-label">เอกสารทั้งหมด</span></button>
+        <button class="nav-item" data-page="data" onclick="changePage(this,'data')"><span class="nav-icon">▦</span><span class="nav-label">ตารางข้อมูล</span></button>
+        <button class="nav-item" data-page="summary" onclick="changePage(this,'summary')"><span class="nav-icon">▤</span><span class="nav-label">สรุปประเด็นสำคัญ</span></button>
+        <button class="nav-item" data-page="compare" onclick="changePage(this,'compare')"><span class="nav-icon">⇄</span><span class="nav-label">เปรียบเทียบข้อมูล</span></button>
+        <button class="nav-item" data-page="report" onclick="changePage(this,'report')"><span class="nav-icon">▧</span><span class="nav-label">รายงานอัตโนมัติ</span></button>
+        <button class="nav-item" data-page="history" onclick="changePage(this,'history')"><span class="nav-icon">◷</span><span class="nav-label">ประวัติการค้นหา</span></button>
+        <button class="nav-item" data-page="settings" onclick="changePage(this,'settings')"><span class="nav-icon">⚙</span><span class="nav-label">ตั้งค่า</span></button>
+        <button class="nav-item admin-menu" data-page="admin" onclick="changePage(this,'admin')" style="display:none;"><span class="nav-icon">🛡️</span><span class="nav-label">จัดการระบบ (Admin)</span></button>
+      </nav>
+
+      <div class="sidebar-bottom">
+        <div class="system-card">
+          <div class="system-title">สถานะระบบ</div>
+          <div class="status-line"><span class="dot"></span>พร้อมใช้งาน (ข้อมูลจริง)</div>
+          <div class="status-line">AI: Thai LLM (live)</div>
+          <div class="status-line">Retrieval: Keyword Search</div>
+          <div class="status-line" id="statDocCount">เอกสาร: - หลักสูตร</div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- MAIN VIEW -->
+    <main class="main">
+
+      <!-- 1. ASK PAGE -->
+      <div id="page-ask" class="page-section">
+        <header class="top-header">
+          <div>
+            <h1 class="page-title">ถามข้อมูลจากเอกสารหลักสูตร (มคอ.2)</h1>
+            <p class="page-description">ค้นหาคำตอบอ้างอิงจากหลักสูตรจริง 4 สาขา คณะเทคโนโลยีสารสนเทศ สจล.</p>
+          </div>
+          <div class="top-actions">
+            <button class="header-btn" onclick="openManual()">📖 คู่มือการใช้งาน</button>
+            <input type="file" id="uploadFile" accept=".pdf,.txt,.csv,.json" style="display:none;" onchange="handleFileUpload(event)">
+            <button class="header-btn" onclick="document.getElementById('uploadFile').click()">↑ อัปโหลดเอกสาร</button>
+            <button class="header-btn danger" onclick="handleLogout()">🚪 ออกจากระบบ</button>
+          </div>
+        </header>
+
+        <div class="content-grid">
+          <section>
+            <div class="card question-card">
+              <div class="section-title">พิมพ์คำถามของคุณ</div>
+              <div class="question-box">
+                <textarea id="questionInput" placeholder="เช่น หลักสูตร DSBA มีจำนวนหน่วยกิตรวมเท่าไหร่ และมีวิชาบังคับกลุ่มใดบ้าง"></textarea>
+                <div class="question-controls">
+                  <div class="controls-left">
+                    <span class="select-btn" id="scopeBtn" role="button" tabindex="0">◉ ค้นหาทุกหลักสูตร ⌄</span>
+                    <span class="shortcut-hint"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> เพื่อค้นหา</span>
+                  </div>
+                  <button id="searchButton" class="search-btn" onclick="askQuestion()">ค้นหาคำตอบ <span>⌕</span></button>
+                </div>
+              </div>
+              <div id="loading" class="loading"><div class="spinner"></div><span id="loadingText">กำลังค้นข้อมูลและประมวลผลด้วย AI...</span></div>
+            </div>
+
+            <div class="card answer-card" id="answerCard">
+              <div class="answer-header">
+                <div class="answer-title">คำตอบจากเอกสาร</div>
+                <div class="confidence" id="confidenceBadge">รอคำถาม</div>
+                <div class="answer-meta"><span id="answerTime"></span></div>
+              </div>
+              <div id="answerBody" class="answer-body">พิมพ์คำถามด้านบนแล้วกด "ค้นหาคำตอบ" ระบบจะค้นข้อความจริงจากเอกสารหลักสูตรทั้ง 4 ไฟล์ แล้วให้ AI สรุปคำตอบพร้อมอ้างอิงหลักฐาน</div>
+              <div id="evidenceSection" class="hidden">
+                <div class="evidence-title">หลักฐานที่ใช้ในการตอบ</div>
+                <div class="evidence-grid" id="evidenceGrid"></div>
+              </div>
+              <div class="info-banner"><span>ⓘ</span><span>คำตอบสร้างจากข้อความที่สกัดได้จริงจากไฟล์ PDF เท่านั้น หากไม่พบข้อมูลเพียงพอ ระบบจะแจ้งให้ทราบ</span></div>
+            </div>
+          </section>
+
+          <aside class="right-column">
+            <div class="card right-card">
+              <div class="right-title">สรุปภาพรวมเอกสาร</div>
+              <div class="stats-grid">
+                <div class="stat"><div class="stat-label">▣ เอกสารทั้งหมด</div><div class="stat-value" id="statDocs">-</div></div>
+                <div class="stat"><div class="stat-label">◇ หลักสูตร</div><div class="stat-value" id="statSources">4 หลักสูตร</div></div>
+                <div class="stat"><div class="stat-label">▤ จำนวนส่วนข้อมูล</div><div class="stat-value" id="statChunks">-</div></div>
+                <div class="stat"><div class="stat-label">◷ อัปเดตล่าสุด</div><div class="stat-value">วันนี้</div></div>
               </div>
             </div>
-            <div id="loading" class="loading"><div class="spinner"></div><span id="loadingText">กำลังค้นข้อมูลและประมวลผลด้วย AI...</span></div>
-          </div>
-
-          <div class="card answer-card" id="answerCard">
-            <div class="answer-header">
-              <div class="answer-title">คำตอบจากเอกสาร</div>
-              <div class="confidence" id="confidenceBadge">รอคำถาม</div>
-              <div class="answer-meta"><span id="answerTime"></span></div>
+            <div class="card right-card">
+              <div class="right-title">สัดส่วนเนื้อหาต่อหลักสูตร</div>
+              <div class="chart-area">
+                <div class="donut" id="donutChart"></div>
+                <div class="legend" id="donutLegend"></div>
+              </div>
             </div>
-            <div id="answerBody" class="answer-body">พิมพ์คำถามด้านบนแล้วกด "ค้นหาคำตอบ" ระบบจะค้นข้อความจริงจากเอกสารหลักสูตรทั้ง 4 ไฟล์ แล้วให้ AI สรุปคำตอบพร้อมอ้างอิงหลักฐาน</div>
-            <div id="evidenceSection" class="hidden">
-              <div class="evidence-title">หลักฐานที่ใช้ในการตอบ</div>
-              <div class="evidence-grid" id="evidenceGrid"></div>
+            <div class="card right-card">
+              <div class="right-title">คำถามที่แนะนำ</div>
+              <div id="faqList"></div>
             </div>
-            <div class="info-banner"><span>ⓘ</span><span>คำตอบสร้างจากข้อความที่สกัดได้จริงจากไฟล์ PDF เท่านั้น หากไม่พบข้อมูลเพียงพอ ระบบจะแจ้งให้ทราบ</span></div>
-          </div>
-        </section>
+            <div class="card right-card">
+              <div class="right-title">ประวัติการค้นหาล่าสุด</div>
+              <div id="historyList"><div style="font-size:12px;color:var(--muted);">ยังไม่มีประวัติการค้นหาในเซสชันนี้</div></div>
+            </div>
+          </aside>
+        </div>
 
-        <aside class="right-column">
+        <footer class="footer">
+          <span>คำตอบทั้งหมดอ้างอิงจากเอกสารหลักสูตรที่อัปโหลดเท่านั้น ระบบไม่สร้างข้อมูลขึ้นมาเอง</span>
+          <span>Powered by DataLens Evidence Engine</span>
+        </footer>
+      </div>
+
+      <!-- 2. DOCS PAGE -->
+      <div id="page-docs" class="page-section hidden">
+        <header class="top-header">
+          <div>
+            <h1 class="page-title">เอกสารทั้งหมด</h1>
+            <p class="page-description">รายการเอกสารหลักสูตรที่ระบบใช้เป็นฐานข้อมูลจริงในการตอบคำถาม</p>
+          </div>
+        </header>
+        <div class="card right-card">
+          <div class="doc-grid" id="docGrid"></div>
+        </div>
+      </div>
+
+      <!-- 3. DATA TABLE PAGE -->
+      <div id="page-data" class="page-section hidden">
+        <header class="top-header">
+          <div>
+            <h1 class="page-title">ตารางข้อมูล</h1>
+            <p class="page-description">โครงสร้างรายวิชาที่สกัดได้จริงจากเอกสารหลักสูตร มคอ.2</p>
+          </div>
+        </header>
+        <div class="card right-card">
+          <div class="filter-row">
+            <div>
+              <label class="filter-label">เลือกหลักสูตร</label>
+              <select id="dataCourseFilter" class="select-input" onchange="renderDataTable(1)"></select>
+            </div>
+            <div>
+              <label class="filter-label">เลือกประเภทข้อมูล</label>
+              <select id="dataTypeFilter" class="select-input" onchange="renderDataTable(1)">
+                <option value="structure">โครงสร้างหลักสูตร</option>
+              </select>
+            </div>
+          </div>
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead><tr><th>รหัสวิชา</th><th>ชื่อวิชา</th><th>หน่วยกิต</th><th>หมวดวิชา</th><th>ภาคการศึกษา</th></tr></thead>
+              <tbody id="dataTableBody"></tbody>
+            </table>
+          </div>
+          <div class="table-footer">
+            <span id="dataTableSummary"></span>
+            <div class="pagination" id="dataPagination"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 4. KEY SUMMARY PAGE -->
+      <div id="page-summary" class="page-section hidden">
+        <header class="top-header">
+          <div>
+            <h1 class="page-title">สรุปประเด็นสำคัญ</h1>
+            <p class="page-description">สรุปสาระสำคัญของหลักสูตร สกัดจากเอกสารต้นฉบับโดย AI</p>
+          </div>
+        </header>
+        <div class="card right-card">
+          <div class="filter-row">
+            <div>
+              <label class="filter-label">เลือกหลักสูตร</label>
+              <select id="summaryCourseFilter" class="select-input" onchange="renderSummary()"></select>
+            </div>
+            <div>
+              <label class="filter-label">เลือกหัวข้อ</label>
+              <select id="summaryTopicFilter" class="select-input" onchange="renderSummary()">
+                <option value="all">ภาพรวมหลักสูตร</option>
+                <option value="objective">วัตถุประสงค์ของหลักสูตร</option>
+                <option value="structure">โครงสร้างหลักสูตร</option>
+                <option value="career">อาชีพที่สามารถประกอบได้</option>
+              </select>
+            </div>
+          </div>
+          <div id="summaryContent"></div>
+        </div>
+      </div>
+
+      <!-- 5. COMPARE PAGE -->
+      <div id="page-compare" class="page-section hidden">
+        <header class="top-header">
+          <div>
+            <h1 class="page-title">เปรียบเทียบข้อมูลระหว่างหลักสูตร</h1>
+            <p class="page-description">เลือกได้สูงสุด 3 หลักสูตร เพื่อเปรียบเทียบข้อมูลจากเอกสารจริง</p>
+          </div>
+        </header>
+        <div class="card right-card">
+          <div class="checkbox-row" id="compareCheckboxes"></div>
+          <div style="overflow-x:auto;">
+            <table class="data-table" id="compareTable"></table>
+          </div>
+        </div>
+      </div>
+
+      <!-- 6. AUTO REPORT PAGE -->
+      <div id="page-report" class="page-section hidden">
+        <header class="top-header">
+          <div>
+            <h1 class="page-title">รายงานอัตโนมัติ</h1>
+            <p class="page-description">สร้างรายงานสรุปหลักสูตรจากข้อมูลที่มีอยู่จริงในระบบ</p>
+          </div>
+        </header>
+        <div class="card right-card">
+          <div class="filter-row">
+            <div>
+              <label class="filter-label">เลือกประเภทรายงาน</label>
+              <select id="reportTypeSelect" class="select-input">
+                <option value="summary">รายงานสรุปหลักสูตร</option>
+              </select>
+            </div>
+            <div>
+              <label class="filter-label">เลือกหลักสูตร</label>
+              <select id="reportCourseSelect" class="select-input"></select>
+            </div>
+            <button class="search-btn" onclick="generateReport()">สร้างรายงาน</button>
+          </div>
+          <div id="reportPreview"></div>
+        </div>
+      </div>
+
+      <!-- 7. SEARCH HISTORY PAGE -->
+      <div id="page-history" class="page-section hidden">
+        <header class="top-header">
+          <div>
+            <h1 class="page-title">ประวัติการค้นหา</h1>
+            <p class="page-description">บันทึกประวัติคำถามและผลการค้นหาของคุณในระบบ</p>
+          </div>
+        </header>
+        <div class="card right-card">
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead><tr><th>คำถาม</th><th>หลักสูตรที่เกี่ยวข้อง</th><th>วันที่และเวลา</th></tr></thead>
+              <tbody id="historyTableBody"></tbody>
+            </table>
+          </div>
+          <div id="historyEmpty" class="hidden" style="font-size:13px;color:var(--muted);padding:24px 0;text-align:center;">ยังไม่มีประวัติการค้นหาในระบบ</div>
+        </div>
+      </div>
+
+      <!-- 8. SETTINGS PAGE -->
+      <div id="page-settings" class="page-section hidden">
+        <header class="top-header">
+          <div>
+            <h1 class="page-title">ตั้งค่า</h1>
+            <p class="page-description">ปรับแต่งการทำงานและการแสดงผลของระบบ</p>
+          </div>
+        </header>
+        <div class="settings-grid">
           <div class="card right-card">
-            <div class="right-title">สรุปภาพรวมเอกสาร</div>
+            <div class="settings-tabs" id="settingsTabs">
+              <button class="settings-tab active" data-tab="general" onclick="switchSettingsTab(this,'general')">ทั่วไป</button>
+              <button class="settings-tab" data-tab="search" onclick="switchSettingsTab(this,'search')">การค้นหา</button>
+              <button class="settings-tab" data-tab="display" onclick="switchSettingsTab(this,'display')">การแสดงผล</button>
+              <button class="settings-tab" data-tab="notify" onclick="switchSettingsTab(this,'notify')">การแจ้งเตือน</button>
+            </div>
+            <div class="settings-panel" id="settingsPanel"></div>
+          </div>
+          <div class="card right-card">
+            <div class="right-title">ข้อมูลระบบ</div>
             <div class="stats-grid">
-              <div class="stat"><div class="stat-label">▣ เอกสารทั้งหมด</div><div class="stat-value" id="statDocs">-</div></div>
-              <div class="stat"><div class="stat-label">◇ หลักสูตร</div><div class="stat-value" id="statSources">4 หลักสูตร</div></div>
-              <div class="stat"><div class="stat-label">▤ จำนวนส่วนข้อมูล</div><div class="stat-value" id="statChunks">-</div></div>
-              <div class="stat"><div class="stat-label">◷ อัปเดตล่าสุด</div><div class="stat-value">วันนี้</div></div>
+              <div class="stat"><div class="stat-label">เวอร์ชัน</div><div class="stat-value">1.2.0</div></div>
+              <div class="stat"><div class="stat-label">อัปเดตล่าสุด</div><div class="stat-value" id="settingsUpdated">-</div></div>
+              <div class="stat" style="grid-column: 1 / -1;"><div class="stat-label">จำนวนฐานข้อมูลเอกสาร</div><div class="stat-value" id="settingsDocCount">-</div></div>
             </div>
           </div>
-          <div class="card right-card">
-            <div class="right-title">สัดส่วนเนื้อหาต่อหลักสูตร</div>
-            <div class="chart-area">
-              <div class="donut" id="donutChart"></div>
-              <div class="legend" id="donutLegend"></div>
-            </div>
-          </div>
-          <div class="card right-card">
-            <div class="right-title">คำถามที่แนะนำ</div>
-            <div id="faqList"></div>
-          </div>
-          <div class="card right-card">
-            <div class="right-title">ประวัติการค้นหาล่าสุด</div>
-            <div id="historyList"><div style="font-size:9px;color:#9aa3b1;">ยังไม่มีประวัติการค้นหาในเซสชันนี้</div></div>
-          </div>
-        </aside>
+        </div>
       </div>
 
-      <footer class="footer">
-        <span>คำตอบทั้งหมดอ้างอิงจากเอกสารหลักสูตรที่อัปโหลดเท่านั้น ระบบไม่สร้างข้อมูลขึ้นมาเอง</span>
-        <span>Powered by Thai LLM</span>
-      </footer>
-    </div>
-
-    <!-- DOCS PAGE -->
-    <div id="page-docs" class="page-section hidden">
-      <header class="top-header">
-        <div>
-          <h1 class="page-title">เอกสารทั้งหมด</h1>
-          <p class="page-description">รายการเอกสารหลักสูตรที่ระบบใช้เป็นฐานข้อมูลจริงในการตอบคำถาม</p>
-        </div>
-      </header>
-      <div class="card right-card" style="padding:20px;">
-        <div class="doc-grid" id="docGrid"></div>
-      </div>
-    </div>
-
-    <!-- DATA TABLE PAGE -->
-    <div id="page-data" class="page-section hidden">
-      <header class="top-header">
-        <div>
-          <h1 class="page-title">ตารางข้อมูล</h1>
-          <p class="page-description">โครงสร้างรายวิชาที่สกัดได้จริงจากเอกสารหลักสูตร มคอ.2</p>
-        </div>
-      </header>
-      <div class="card right-card" style="padding:18px;">
-        <div class="filter-row">
+      <!-- 9. ADMIN PAGE -->
+      <div id="page-admin" class="page-section hidden">
+        <header class="top-header">
           <div>
-            <label class="filter-label">เลือกหลักสูตร</label>
-            <select id="dataCourseFilter" class="select-input" onchange="renderDataTable(1)"></select>
+            <h1 class="page-title">จัดการระบบ (Admin)</h1>
+            <p class="page-description">แผงควบคุมสำหรับผู้ดูแลระบบ จัดการผู้ใช้และดูสถิติการใช้งาน</p>
           </div>
-          <div>
-            <label class="filter-label">เลือกประเภทข้อมูล</label>
-            <select id="dataTypeFilter" class="select-input" onchange="renderDataTable(1)">
-              <option value="structure">โครงสร้างหลักสูตร</option>
-            </select>
-          </div>
-        </div>
-        <div style="overflow-x:auto;">
-          <table class="data-table">
-            <thead><tr><th>รหัสวิชา</th><th>ชื่อวิชา</th><th>หน่วยกิต</th><th>หมวดวิชา</th><th>ภาคการศึกษา</th></tr></thead>
-            <tbody id="dataTableBody"></tbody>
-          </table>
-        </div>
-        <div class="table-footer">
-          <span id="dataTableSummary"></span>
-          <div class="pagination" id="dataPagination"></div>
-        </div>
-      </div>
-    </div>
-
-    <!-- KEY SUMMARY PAGE -->
-    <div id="page-summary" class="page-section hidden">
-      <header class="top-header">
-        <div>
-          <h1 class="page-title">สรุปประเด็นสำคัญ</h1>
-          <p class="page-description">สรุปสาระสำคัญของหลักสูตร สกัดจากเอกสารต้นฉบับโดย AI</p>
-        </div>
-      </header>
-      <div class="card right-card" style="padding:18px;">
-        <div class="filter-row">
-          <div>
-            <label class="filter-label">เลือกหลักสูตร</label>
-            <select id="summaryCourseFilter" class="select-input" onchange="renderSummary()"></select>
-          </div>
-          <div>
-            <label class="filter-label">เลือกหัวข้อ</label>
-            <select id="summaryTopicFilter" class="select-input" onchange="renderSummary()">
-              <option value="all">ภาพรวมหลักสูตร</option>
-              <option value="objective">วัตถุประสงค์ของหลักสูตร</option>
-              <option value="structure">โครงสร้างหลักสูตร</option>
-              <option value="career">อาชีพที่สามารถประกอบได้</option>
-            </select>
-          </div>
-        </div>
-        <div id="summaryContent"></div>
-      </div>
-    </div>
-
-    <!-- COMPARE PAGE -->
-    <div id="page-compare" class="page-section hidden">
-      <header class="top-header">
-        <div>
-          <h1 class="page-title">เปรียบเทียบข้อมูลระหว่างหลักสูตร</h1>
-          <p class="page-description">เลือกได้สูงสุด 3 หลักสูตร เพื่อเปรียบเทียบข้อมูลจากเอกสารจริง</p>
-        </div>
-      </header>
-      <div class="card right-card" style="padding:18px;">
-        <div class="checkbox-row" id="compareCheckboxes"></div>
-        <div style="overflow-x:auto;">
-          <table class="data-table" id="compareTable"></table>
-        </div>
-      </div>
-    </div>
-
-    <!-- AUTO REPORT PAGE -->
-    <div id="page-report" class="page-section hidden">
-      <header class="top-header">
-        <div>
-          <h1 class="page-title">รายงานอัตโนมัติ</h1>
-          <p class="page-description">สร้างรายงานสรุปหลักสูตรจากข้อมูลที่มีอยู่จริงในระบบ</p>
-        </div>
-      </header>
-      <div class="card right-card" style="padding:18px;">
-        <div class="filter-row">
-          <div>
-            <label class="filter-label">เลือกประเภทรายงาน</label>
-            <select id="reportTypeSelect" class="select-input">
-              <option value="summary">รายงานสรุปหลักสูตร</option>
-            </select>
-          </div>
-          <div>
-            <label class="filter-label">เลือกหลักสูตร</label>
-            <select id="reportCourseSelect" class="select-input"></select>
-          </div>
-          <button class="search-btn" style="margin-left:0;" onclick="generateReport()">สร้างรายงาน</button>
-        </div>
-        <div id="reportPreview"></div>
-      </div>
-    </div>
-
-    <!-- SEARCH HISTORY PAGE -->
-    <div id="page-history" class="page-section hidden">
-      <header class="top-header">
-        <div>
-          <h1 class="page-title">ประวัติการค้นหา</h1>
-          <p class="page-description">บันทึกประวัติคำถามและผลการค้นหาของคุณในระบบ</p>
-        </div>
-      </header>
-      <div class="card right-card" style="padding:18px;">
-        <table class="data-table">
-          <thead><tr><th>คำถาม</th><th>หลักสูตรที่เกี่ยวข้อง</th><th>วันที่และเวลา</th></tr></thead>
-          <tbody id="historyTableBody"></tbody>
-        </table>
-        <div id="historyEmpty" class="hidden" style="font-size:11px;color:var(--muted);padding:14px 0;">ยังไม่มีประวัติการค้นหาในระบบ</div>
-      </div>
-    </div>
-
-    <!-- SETTINGS PAGE -->
-    <div id="page-settings" class="page-section hidden">
-      <header class="top-header">
-        <div>
-          <h1 class="page-title">ตั้งค่า</h1>
-          <p class="page-description">ปรับแต่งการทำงานของระบบ</p>
-        </div>
-      </header>
-      <div class="settings-grid">
+        </header>
         <div class="card right-card">
-          <div class="settings-tabs" id="settingsTabs">
-            <button class="settings-tab active" data-tab="general" onclick="switchSettingsTab(this,'general')">ทั่วไป</button>
-            <button class="settings-tab" data-tab="search" onclick="switchSettingsTab(this,'search')">การค้นหา</button>
-            <button class="settings-tab" data-tab="display" onclick="switchSettingsTab(this,'display')">การแสดงผล</button>
-            <button class="settings-tab" data-tab="notify" onclick="switchSettingsTab(this,'notify')">การแจ้งเตือน</button>
+          <div class="admin-metrics-grid">
+            <div class="admin-stat-card">
+              <div class="admin-stat-label">ผู้ใช้งานทั้งหมด</div>
+              <div class="admin-stat-value text-blue">12</div>
+            </div>
+            <div class="admin-stat-card">
+              <div class="admin-stat-label">คำถามในระบบ</div>
+              <div class="admin-stat-value text-gold">1,402</div>
+            </div>
           </div>
-          <div class="settings-panel" id="settingsPanel"></div>
-        </div>
-        <div class="card right-card">
-          <div class="right-title">ข้อมูลระบบ</div>
-          <div class="stats-grid">
-            <div class="stat"><div class="stat-label">เวอร์ชัน</div><div class="stat-value">1.0.0</div></div>
-            <div class="stat"><div class="stat-label">อัปเดตล่าสุด</div><div class="stat-value" id="settingsUpdated">-</div></div>
-            <div class="stat" style="grid-column:1/3;"><div class="stat-label">จำนวนฐานข้อมูลเอกสาร</div><div class="stat-value" id="settingsDocCount">-</div></div>
+          <div style="overflow-x:auto;">
+            <table class="data-table">
+              <thead><tr><th>อีเมล</th><th>Role</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
+              <tbody>
+                <tr><td>admin@datalens.ai</td><td>Admin</td><td><span class="badge badge-success">Active</span></td><td><button class="header-btn" style="padding:4px 10px; font-size:12px;">แก้ไข</button></td></tr>
+                <tr><td>user1@kmitl.ac.th</td><td>User</td><td><span class="badge badge-success">Active</span></td><td><button class="header-btn" style="padding:4px 10px; font-size:12px;">แก้ไข</button></td></tr>
+                <tr><td>test@example.com</td><td>User</td><td><span class="badge badge-danger">Banned</span></td><td><button class="header-btn" style="padding:4px 10px; font-size:12px;">แก้ไข</button></td></tr>
+              </tbody>
+            </table>
           </div>
         </div>
       </div>
-    </div>
-  
-    <!-- ADMIN PAGE -->
-    <div id="page-admin" class="page-section hidden">
-      <header class="top-header">
-        <div>
-          <h1 class="page-title">จัดการระบบ (Admin)</h1>
-          <p class="page-description">แผงควบคุมสำหรับผู้ดูแลระบบ จัดการผู้ใช้และดูสถิติ</p>
-        </div>
-      </header>
-      <div class="card right-card" style="padding:18px;">
-        <div style="display:grid; grid-template-columns:1fr 1fr; gap:15px; margin-bottom:20px;">
-            <div style="background:var(--surface-2); padding:20px; border-radius:8px; text-align:center;">
-                <h3 style="margin:0; color:var(--text-dim);">ผู้ใช้งานทั้งหมด</h3>
-                <div style="font-size:32px; color:var(--blue); font-weight:bold; margin-top:10px;">12</div>
-            </div>
-            <div style="background:var(--surface-2); padding:20px; border-radius:8px; text-align:center;">
-                <h3 style="margin:0; color:var(--text-dim);">คำถามในระบบ</h3>
-                <div style="font-size:32px; color:var(--gold); font-weight:bold; margin-top:10px;">1,402</div>
-            </div>
-        </div>
-        <div style="overflow-x:auto;">
-          <table class="data-table">
-            <thead><tr><th>อีเมล</th><th>Role</th><th>สถานะ</th><th>จัดการ</th></tr></thead>
-            <tbody>
-                <tr><td>admin@datalens.ai</td><td>Admin</td><td><span style="color:var(--sage);">Active</span></td><td><button class="header-btn" style="padding:4px 8px; font-size:12px;">แก้ไข</button></td></tr>
-                <tr><td>user1@kmitl.ac.th</td><td>User</td><td><span style="color:var(--sage);">Active</span></td><td><button class="header-btn" style="padding:4px 8px; font-size:12px;">แก้ไข</button></td></tr>
-                <tr><td>test@example.com</td><td>User</td><td><span style="color:var(--brick);">Banned</span></td><td><button class="header-btn" style="padding:4px 8px; font-size:12px;">แก้ไข</button></td></tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  </main>
 
-</div>
-
-<div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
-  <div class="modal-box">
-    <button class="modal-close" onclick="closeModal()">✕</button>
-    <h3 id="modalTitle"></h3>
-    <div class="modal-meta" id="modalMeta"></div>
-    <div class="modal-text" id="modalText"></div>
+    </main>
   </div>
-</div>
 
-<div id="toast" class="toast"></div>
-</div>
-
-<div class="modal-overlay" id="manualOverlay" onclick="closeModalOnOverlay(event)">
-  <div class="modal-box" style="max-width:600px;">
-    <button class="modal-close" onclick="closeManual()">✕</button>
-    <h3>📖 คู่มือการใช้งาน DataLens AI</h3>
-    <div style="margin-top:15px; line-height:1.6; color:var(--text); font-size:14px;">
-      <b>1. การค้นหาข้อมูล</b><br>
-      พิมพ์คำถามของคุณลงในช่องค้นหา AI จะทำการค้นหาหลักฐานจากเอกสารหลักสูตร 4 สาขา (IT, DSBA, AIT, IT-INTER) และสรุปคำตอบให้คุณ<br><br>
-      
-      <b>2. การดูหลักฐานอ้างอิง</b><br>
-      ด้านล่างของคำตอบ จะมีรายชื่อไฟล์และเลขหน้าของเอกสารที่ AI นำมาใช้อ้างอิง คุณสามารถคลิกปุ่ม "ดูข้อความเต็ม" เพื่อตรวจสอบความถูกต้องได้<br><br>
-      
-      <b>3. โหมดมืด (Dark Mode)</b><br>
-      ไปที่เมนู "ตั้งค่า" ด้านซ้ายมือ เพื่อสลับโหมดหน้าจอให้สบายตาขึ้น<br><br>
-      
-      <b>4. ประวัติการค้นหา</b><br>
-      คำถามที่คุณเคยถาม จะถูกบันทึกไว้ในฐานข้อมูล และปรากฏทางด้านขวามือ (หรือในหน้า "ประวัติการค้นหา")
+  <!-- MODAL: EVIDENCE DETAILS -->
+  <div class="modal-overlay" id="modalOverlay" onclick="closeModalOnOverlay(event)">
+    <div class="modal-box">
+      <button class="modal-close" onclick="closeModal()" aria-label="ปิดหน้าต่าง">✕</button>
+      <h3 id="modalTitle"></h3>
+      <div class="modal-meta" id="modalMeta"></div>
+      <div class="modal-text" id="modalText"></div>
     </div>
   </div>
+
+  <!-- MODAL: USER MANUAL -->
+  <div class="modal-overlay" id="manualOverlay" onclick="closeModalOnOverlay(event)">
+    <div class="modal-box manual-modal">
+      <button class="modal-close" onclick="closeManual()" aria-label="ปิดหน้าต่าง">✕</button>
+      <div class="modal-header-section">
+        <h3>📖 คู่มือการใช้งาน DataLens AI</h3>
+        <p class="modal-subtitle">ระบบค้นหาและวิเคราะห์หลักสูตร มคอ.2 อัจฉริยะ</p>
+      </div>
+      <div class="manual-steps">
+        <div class="manual-step">
+          <div class="step-num">1</div>
+          <div class="step-content">
+            <h4>การค้นหาข้อมูล</h4>
+            <p>พิมพ์คำถามที่ต้องการ เช่น หน่วยกิตรวม วิชาบังคับ หรืออาจารย์ผู้สอน ระบบจะดึงหลักฐานจากเอกสารจริงทั้ง 4 สาขา (IT, DSBA, AIT, IT-Inter) มาตอบทันที</p>
+          </div>
+        </div>
+        <div class="manual-step">
+          <div class="step-num">2</div>
+          <div class="step-content">
+            <h4>การตรวจสอบหลักฐานอ้างอิง</h4>
+            <p>ทุกคำตอบจะมี Card อ้างอิงระบุชื่อหลักสูตรและเลขหน้าชัดเจน คลิกปุ่ม "ดูข้อความเต็ม" เพื่อเปิดอ่านบริบทดั้งเดิมจากเอกสาร</p>
+          </div>
+        </div>
+        <div class="manual-step">
+          <div class="step-num">3</div>
+          <div class="step-content">
+            <h4>โหมดมืด (Dark Mode)</h4>
+            <p>ไปที่เมนู "ตั้งค่า" แล้วเลือกปรับรูปแบบการแสดงผลเป็น Dark Mode เพื่อการทำงานที่สบายตาในที่แสงน้อย</p>
+          </div>
+        </div>
+        <div class="manual-step">
+          <div class="step-num">4</div>
+          <div class="step-content">
+            <h4>บันทึกและประวัติการค้นหา</h4>
+            <p>คำถามที่เคยถามจะถูกจัดเก็บอัตโนมัติ สามารถคลิกดูคำถามเดิมได้ทางแถบขวามือหรือที่หน้า "ประวัติการค้นหา"</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST NOTIFICATION -->
+  <div id="toast" class="toast"></div>
+
 </div>
 
 <script type="module" src="script.js"></script>
