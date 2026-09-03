@@ -1078,67 +1078,136 @@ window.toggleCompareCourse = function(courseId) {
 };
 
 window.renderCompare = function() {
-    const content = document.querySelector('#page-compare .card');
-    if (!content) return;
+    const checkboxesContainer = document.getElementById('compareCheckboxes');
+    if (!checkboxesContainer) return;
     
-    if (!document.getElementById('compareControls')) {
+    // Only populate once
+    if (checkboxesContainer.innerHTML.trim() === '') {
         const courses = Object.keys(DOC_META);
-        let html = '<div id="compareControls" style="margin-bottom:20px; display:flex; gap:15px; flex-wrap:wrap; align-items:center;">';
-        html += '<span style="color:var(--text);">เลือกหลักสูตร (สูงสุด 3):</span>';
+        let html = '<span style="color:var(--text); font-weight:bold; margin-right: 10px;">เลือกหลักสูตร (สูงสุด 3):</span>';
         courses.forEach(c => {
-            html += `<label style="color:var(--text-dim); display:flex; align-items:center; gap:5px; cursor:pointer;">
+            html += `<label style="color:var(--text); display:inline-flex; align-items:center; gap:5px; cursor:pointer; margin-right: 15px; padding: 5px 10px; background: rgba(255,255,255,0.05); border-radius: 6px; border: 1px solid var(--border);">
                 <input type="checkbox" id="chk_${c}" onchange="toggleCompareCourse('${c}')"> ${DOC_META[c].name.split(' ')[0]}
             </label>`;
         });
-        html += '</div><div id="compareTableContainer" style="overflow-x:auto;"></div>';
-        content.innerHTML = html;
+        checkboxesContainer.innerHTML = html;
         selectedCompareCourses.clear();
+        
+        // Auto-select IT and DSBA for the prototype default look
+        document.getElementById('chk_IT').checked = true;
+        document.getElementById('chk_DSBA').checked = true;
+        selectedCompareCourses.add('IT');
+        selectedCompareCourses.add('DSBA');
+        
         renderCompareTable();
     }
 };
 
 window.renderCompareTable = function() {
-    const container = document.getElementById('compareTableContainer');
-    if (!container) return;
+    const table = document.getElementById('compareTable');
+    if (!table) return;
     
     if (selectedCompareCourses.size < 2) {
-        container.innerHTML = `<div style="padding:30px; text-align:center; border:1px dashed var(--border); border-radius:8px; color:var(--text-dim);">
+        table.innerHTML = `<tr><td><div style="padding:30px; text-align:center; border:1px dashed var(--border); border-radius:8px; color:var(--text-dim);">
             กรุณาเลือกอย่างน้อย 2 หลักสูตรเพื่อดูตารางเปรียบเทียบ
-        </div>`;
+        </div></td></tr>`;
+        
+        // Update header if exists
+        const header = document.querySelector('#page-compare h2');
+        if(header) header.remove();
+        
         return;
     }
     
     const selected = Array.from(selectedCompareCourses);
     
-    let html = `<table class="data-table"><thead><tr><th>หัวข้อการเปรียบเทียบ</th>`;
-    selected.forEach(c => {
-        html += `<th>${DOC_META[c].name.split(' ')[0]}</th>`;
-    });
-    html += `</tr></thead><tbody>`;
+    // Create comparison title like in image
+    const titleText = "เปรียบเทียบหลักสูตร: " + selected.join(" vs ");
+    let titleEl = document.getElementById('compareTitleLabel');
+    if (!titleEl) {
+        titleEl = document.createElement('h2');
+        titleEl.id = 'compareTitleLabel';
+        titleEl.style.color = 'var(--text)';
+        titleEl.style.fontSize = '20px';
+        titleEl.style.marginBottom = '20px';
+        titleEl.style.fontWeight = 'bold';
+        const container = document.getElementById('compareCheckboxes').parentNode;
+        container.insertBefore(titleEl, document.getElementById('compareCheckboxes').nextSibling);
+    }
+    titleEl.textContent = titleText;
     
+    // Generate Table Headers
+    let html = `<thead><tr style="background: rgba(23, 105, 224, 0.1); border-bottom: 2px solid var(--border);">
+        <th style="padding: 15px; text-align: center; color: var(--blue);">หัวข้อสำคัญ</th>`;
+    selected.forEach(c => {
+        html += `<th style="padding: 15px; text-align: center; color: var(--blue);">${DOC_META[c].name.split(' ')[0]}</th>`;
+    });
+    html += `<th style="padding: 15px; text-align: center; color: var(--blue);">อ้างอิง</th></tr></thead><tbody>`;
+    
+    // Dataset matching the image
     const metrics = [
-        { key: 'หน่วยกิตรวมตลอดหลักสูตร', vals: { 'IT': '129', 'DSBA': '129', 'AIT': '129', 'IT-INTER': '129' } },
-        { key: 'หมวดวิชาศึกษาทั่วไป', vals: { 'IT': '30', 'DSBA': '30', 'AIT': '30', 'IT-INTER': '30' } },
-        { key: 'หมวดวิชาเฉพาะ', vals: { 'IT': '93', 'DSBA': '93', 'AIT': '93', 'IT-INTER': '93' } },
-        { key: 'หมวดวิชาเลือกเสรี', vals: { 'IT': '6', 'DSBA': '6', 'AIT': '6', 'IT-INTER': '6' } },
-        { key: 'จุดเด่นของหลักสูตร', vals: { 
-            'IT': 'เน้นทักษะ Network & Software Engineering แบบเข้มข้น', 
-            'DSBA': 'ผสานความรู้ Data Science และทักษะ Business', 
-            'AIT': 'เจาะลึกด้าน Artificial Intelligence และ Machine Learning', 
-            'IT-INTER': 'หลักสูตรนานาชาติ เน้น Global IT Business' } 
+        { 
+            key: 'จุดมุ่งหมายหลักสูตร', 
+            vals: { 
+                'IT': 'พัฒนาระบบและเทคโนโลยี', 
+                'DSBA': 'วิเคราะห์ข้อมูลและธุรกิจ', 
+                'AIT': 'พัฒนา AI และ Machine Learning', 
+                'IT-INTER': 'Global IT & Business Management' 
+            },
+            ref: { 'IT': 'มคอ.2 IT หน้า 3', 'DSBA': 'มคอ.2 DSBA หน้า 4', 'AIT': 'มคอ.2 AIT หน้า 4', 'IT-INTER': 'มคอ.2 IT-INTER หน้า 3'}
+        },
+        { 
+            key: 'โครงสร้างหลักสูตร', 
+            vals: { 
+                'IT': '130 หน่วยกิต', 
+                'DSBA': '126 หน่วยกิต', 
+                'AIT': '129 หน่วยกิต', 
+                'IT-INTER': '129 หน่วยกิต' 
+            },
+            ref: { 'IT': 'มคอ.2 IT หน้า 12', 'DSBA': 'มคอ.2 DSBA หน้า 11', 'AIT': 'มคอ.2 AIT หน้า 10', 'IT-INTER': 'มคอ.2 IT-INTER หน้า 15'}
+        },
+        { 
+            key: 'กลุ่มวิชาเด่น', 
+            vals: { 
+                'IT': 'ระบบสารสนเทศ, เครือข่าย', 
+                'DSBA': 'สถิติ, ML, Data Analytics', 
+                'AIT': 'Deep Learning, NLP, Robotics', 
+                'IT-INTER': 'Enterprise Architecture, Global Tech' 
+            },
+            ref: { 'IT': 'มคอ.2 IT หน้า 14', 'DSBA': 'มคอ.2 DSBA หน้า 18', 'AIT': 'มคอ.2 AIT หน้า 16', 'IT-INTER': 'มคอ.2 IT-INTER หน้า 19'}
+        },
+        { 
+            key: 'อาชีพที่รองรับ', 
+            vals: { 
+                'IT': 'System Analyst, Developer', 
+                'DSBA': 'Data Analyst, Data Scientist', 
+                'AIT': 'AI Engineer, ML Engineer', 
+                'IT-INTER': 'IT Consultant, Project Manager' 
+            },
+            ref: { 'IT': 'มคอ.2 IT หน้า 15', 'DSBA': 'มคอ.2 DSBA หน้า 19', 'AIT': 'มคอ.2 AIT หน้า 20', 'IT-INTER': 'มคอ.2 IT-INTER หน้า 21'}
         }
     ];
     
     metrics.forEach(m => {
-        html += `<tr><td><strong>${m.key}</strong></td>`;
+        html += `<tr style="border-bottom: 1px solid var(--border);">
+            <td style="padding: 15px; font-weight: bold; text-align: center;">${m.key}</td>`;
+        
+        // Generate values
         selected.forEach(c => {
-            html += `<td>${m.vals[c] || 'ดูรายละเอียดในเล่มหลักสูตร'}</td>`;
+            html += `<td style="padding: 15px; text-align: center;">${m.vals[c] || '-'}</td>`;
         });
-        html += `</tr>`;
+        
+        // Generate Reference (Combine refs of selected)
+        let refs = selected.map(c => m.ref[c]).filter(r => r);
+        let refText = `[${refs[0]}]`; // Default to first selected course ref for simplicity, like the image
+        if(refs.length === 0) refText = '-';
+        
+        html += `<td style="padding: 15px; text-align: center; color: var(--text-dim);">${refText}</td>
+        </tr>`;
     });
     
-    html += `</tbody></table>`;
-    container.innerHTML = html;
+    html += `</tbody>`;
+    table.innerHTML = html;
 };
 
 // --- Report ---
