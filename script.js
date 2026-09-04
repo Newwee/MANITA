@@ -68,35 +68,145 @@ function init() {
   document.getElementById("docGrid").innerHTML = docHtml;
 }
 
+/* ---------- Language & Cross-Lingual Search Dictionary ---------- */
+function detectLanguage(text) {
+  if (!text) return 'th';
+  if (/[\u0E00-\u0E7F]/.test(text)) return 'th';
+  if (/[a-zA-Z]/.test(text)) return 'en';
+  return 'th';
+}
+
+function normalizeThai(str) {
+  if (!str) return '';
+  return str.replace(/[\u0E31\u0E34-\u0E3A\u0E47-\u0E4E]/g, '').toLowerCase();
+}
+
+const EN_TH_KEYWORDS = {
+  'credit': ['หน่วยกิต', 'หนวยกิต', 'จำนวนหน่วยกิต', 'จำนวนหนวยกิต'],
+  'credits': ['หน่วยกิต', 'หนวยกิต', 'จำนวนหน่วยกิต', 'จำนวนหนวยกิต'],
+  'total credit': ['หน่วยกิตรวม', 'หนวยกิตรวม', 'จำนวนหน่วยกิต', 'จำนวนหนวยกิต'],
+  'total credits': ['หน่วยกิตรวม', 'หนวยกิตรวม', 'จำนวนหน่วยกิต', 'จำนวนหนวยกิต'],
+  'career': ['อาชีพ', 'สามารถประกอบได้', 'สามารถประกอบได', 'ประกอบอาชีพ'],
+  'careers': ['อาชีพ', 'สามารถประกอบได้', 'สามารถประกอบได', 'ประกอบอาชีพ'],
+  'job': ['อาชีพ', 'ตำแหน่งงาน', 'ตำแหนงงาน', 'ประกอบอาชีพ'],
+  'jobs': ['อาชีพ', 'ตำแหน่งงาน', 'ตำแหนงงาน', 'ประกอบอาชีพ'],
+  'curriculum': ['หลักสูตร', 'หลักสตู ร', 'มคอ.2'],
+  'curriculums': ['หลักสูตร', 'หลักสตู ร', 'มคอ.2'],
+  'program': ['หลักสูตร', 'สาขาวิชา'],
+  'degree': ['ปริญญา', 'ชื่อปริญญา', 'วิทยาศาสตรบัณฑิต'],
+  'tuition': ['ค่าธรรมเนียม', 'คาธรรมเนียม', 'ค่าเทอม', 'คาเทอม', 'ค่าใช้จ่าย', 'คาใชจาย'],
+  'fee': ['ค่าธรรมเนียม', 'คาธรรมเนียม', 'ค่าเทอม'],
+  'fees': ['ค่าธรรมเนียม', 'คาธรรมเนียม', 'ค่าเทอม'],
+  'cost': ['ค่าธรรมเนียม', 'คาธรรมเนียม', 'ค่าใช้จ่าย', 'คาใชจาย'],
+  'subject': ['รายวิชา', 'วิชา', 'หมวดวิชา'],
+  'subjects': ['รายวิชา', 'วิชา', 'หมวดวิชา'],
+  'course': ['รายวิชา', 'วิชา', 'หลักสูตร'],
+  'courses': ['รายวิชา', 'วิชา', 'หลักสูตร'],
+  'instructor': ['อาจารย์', 'อาจารย', 'อาจารย์ผู้รับผิดชอบ', 'อาจารยผูรับผิดชอบ', 'อาจารย์ประจำ'],
+  'instructors': ['อาจารย์', 'อาจารย', 'อาจารย์ผู้รับผิดชอบ', 'อาจารยผูรับผิดชอบ', 'อาจารย์ประจำ'],
+  'lecturer': ['อาจารย์', 'อาจารย', 'อาจารย์พิเศษ', 'วิทยากร'],
+  'lecturers': ['อาจารย์', 'อาจารย', 'อาจารย์พิเศษ', 'วิทยากร'],
+  'professor': ['อาจารย์', 'อาจารย', 'ศ.', 'รศ.', 'ผศ.', 'ดร.'],
+  'professors': ['อาจารย์', 'อาจารย', 'ศ.', 'รศ.', 'ผศ.', 'ดร.'],
+  'director': ['อาจารย์ผู้รับผิดชอบ', 'อาจารยผูรับผิดชอบ', 'ประธานหลักสูตร', 'หัวหน้า'],
+  'objective': ['วัตถุประสงค์', 'วัตถุประสงค', 'ปรัชญา'],
+  'objectives': ['วัตถุประสงค์', 'วัตถุประสงค', 'ปรัชญา'],
+  'goal': ['วัตถุประสงค์', 'วัตถุประสงค', 'เป้าหมาย'],
+  'goals': ['วัตถุประสงค์', 'วัตถุประสงค', 'เป้าหมาย'],
+  'plo': ['ผลการเรียนรู้', 'ผลการเรียนรู', 'plo', 'ผลลัพธ์การเรียนรู้'],
+  'plos': ['ผลการเรียนรู้', 'ผลการเรียนรู', 'plo', 'ผลลัพธ์การเรียนรู้'],
+  'outcome': ['ผลลัพธ์การเรียนรู้', 'ผลการเรียนรู้', 'ผลการเรียนรู'],
+  'outcomes': ['ผลลัพธ์การเรียนรู้', 'ผลการเรียนรู้', 'ผลการเรียนรู'],
+  'internship': ['ฝึกงาน', 'ฝกงาน', 'สหกิจศึกษา', 'สหกิจ'],
+  'coop': ['สหกิจศึกษา', 'สหกิจ', 'ฝึกงาน', 'ฝกงาน'],
+  'cooperative': ['สหกิจศึกษา', 'สหกิจ', 'ฝึกงาน', 'ฝกงาน'],
+  'admission': ['การรับเข้า', 'การรับเขา', 'คุณสมบัติ', 'รับเฉพาะนักศึกษา'],
+  'requirement': ['คุณสมบัติ', 'เกณฑ์', 'เงื่อนไข'],
+  'requirements': ['คุณสมบัติ', 'เกณฑ์', 'เงื่อนไข'],
+  'prerequisite': ['วิชาบังคับก่อน'],
+  'prerequisites': ['วิชาบังคับก่อน'],
+  'plan': ['แผนการศึกษา', 'แผนการเรียน'],
+  'semester': ['ภาคการศึกษา', 'ภาคเรียน', 'ชั้นปี', 'ชั้นป'],
+  'year': ['ชั้นปี', 'ชั้นป', 'พ.ศ.', 'ปีการศึกษา', 'ปการศึกษา'],
+  'duration': ['ระยะเวลา', '4 ปี', '4 ป', 'ปริญญาตรี 4 ปี', 'ปริญญาตรี 4 ป'],
+  'structure': ['โครงสร้างหลักสูตร', 'โครงสรางหลักสูตร', 'หมวดวิชา'],
+  'faculty': ['คณะ', 'คณะเทคโนโลยีสารสนเทศ'],
+  'kmitl': ['สถาบันเทคโนโลยีพระจอมเกล้าเจ้าคุณทหารลาดกระบัง', 'สถาบันเทคโนโลยีพระจอมเกลาเจาคุณทหารลาดกระบัง', 'สจล.'],
+  'major': ['วิชาเอก', 'แขนง', 'กลุ่มวิชา', 'กลุมวิชา', 'ความเชี่ยวชาญเฉพาะ'],
+  'track': ['กลุ่มวิชา', 'กลุมวิชา', 'แขนงวิชา', 'ความเชี่ยวชาญเฉพาะ'],
+  'english': ['ภาษาอังกฤษ', 'นานาชาติ', 'inter'],
+  'thai': ['ภาษาไทย']
+};
+
+function expandQuery(query) {
+  const lower = query.toLowerCase();
+  const terms = [lower];
+  for (const [enKey, thValues] of Object.entries(EN_TH_KEYWORDS)) {
+    const regex = new RegExp(`\\b${enKey}\\b`, 'i');
+    if (regex.test(lower)) {
+      thValues.forEach(v => terms.push(v));
+    }
+  }
+  return terms;
+}
+
 /* ---------- Retrieval: simple client-side keyword scoring over real text ---------- */
 function scoreChunk(query, chunkText) {
   const q = query.trim();
   if (!q) return 0;
+  const lowerQ = q.toLowerCase();
+  const lowerText = chunkText.toLowerCase();
   let score = 0;
-  if (chunkText.includes(q)) score += 60;
+  
+  if (lowerText.includes(lowerQ)) score += 70;
+
+  const normQ = normalizeThai(q);
+  const normText = normalizeThai(chunkText);
+  if (normQ.length >= 4 && normText.includes(normQ)) score += 40;
+
   const grams = (len) => {
-    for (let i = 0; i + len <= q.length; i++) {
-      const g = q.slice(i, i + len);
+    for (let i = 0; i + len <= lowerQ.length; i++) {
+      const g = lowerQ.slice(i, i + len);
       if (g.trim().length < len) continue;
-      if (chunkText.includes(g)) score += len;
+      if (lowerText.includes(g)) score += len;
     }
   };
   grams(8); grams(6); grams(4);
+
+  // Token matching for words
+  const tokens = lowerQ.split(/[\s,?.!/]+/).filter(t => t.length >= 2);
+  tokens.forEach(t => {
+    if (lowerText.includes(t)) score += 12;
+  });
+
+  // Cross-lingual keyword expansion for Thai docs
+  const expanded = expandQuery(q);
+  expanded.slice(1).forEach(thTerm => {
+    if (chunkText.includes(thTerm)) {
+      score += 35;
+    } else {
+      const normTh = normalizeThai(thTerm);
+      if (normTh.length >= 3 && normText.includes(normTh)) {
+        score += 25;
+      }
+    }
+  });
+
   return score;
 }
 
 function docBoost(query, doc) {
   const lower = query.toLowerCase();
   let boost = 0;
-  if (doc === "DSBA" && (lower.includes("dsba") || lower.includes("วิทยาการข้อมูล"))) boost += 25;
-  if (doc === "AIT" && (lower.includes("ait") || lower.includes("ปัญญาประดิษฐ์"))) boost += 25;
-  if (doc === "IT-INTER" && (lower.includes("inter") || lower.includes("นานาชาติ") || lower.includes("ธุรกิจ"))) boost += 20;
-  if (doc === "IT" && /(^|[^a-z])it([^a-z]|$)/.test(lower) && !lower.includes("inter")) boost += 15;
+  if (doc === "DSBA" && (lower.includes("dsba") || lower.includes("วิทยาการข้อมูล") || lower.includes("data science") || lower.includes("business analytics"))) boost += 35;
+  if (doc === "AIT" && (lower.includes("ait") || lower.includes("ปัญญาประดิษฐ์") || lower.includes("artificial intelligence") || lower.includes("ai "))) boost += 35;
+  if (doc === "IT-INTER" && (lower.includes("inter") || lower.includes("นานาชาติ") || lower.includes("international") || lower.includes("ธุรกิจ") || lower.includes("global"))) boost += 30;
+  if (doc === "IT" && /(^|[^a-z])it([^a-z]|$)/.test(lower) && !lower.includes("inter")) boost += 20;
   return boost;
 }
 
-function retrieve(query, k) {
-  const scored = CHUNKS.map(c => ({
+function retrieve(query, k, sourceChunks = CHUNKS) {
+  const scored = sourceChunks.map(c => ({
     c, s: scoreChunk(query, c.text) + docBoost(query, c.doc)
   })).filter(x => x.s > 0);
   scored.sort((a, b) => b.s - a.s);
@@ -135,48 +245,84 @@ async function askQuestion() {
   ? CHUNKS 
   : CHUNKS.filter(chunk => chunk.doc === selectedScope);
 
-  if (!question) { showToast("กรุณาพิมพ์คำถามก่อน"); input.focus(); return; }
+  if (!question) { 
+    showToast("กรุณาพิมพ์คำถามก่อน"); 
+    input.focus(); 
+    return; 
+  }
+
+  const lang = detectLanguage(question);
 
   button.disabled = true;
   loading.classList.add("active");
-  document.getElementById("loadingText").textContent = "กำลังค้นหาข้อความที่เกี่ยวข้องในเอกสาร...";
+  document.getElementById("loadingText").textContent = lang === "en"
+    ? "Searching relevant information across curriculum documents..."
+    : "กำลังค้นหาข้อความที่เกี่ยวข้องในเอกสาร...";
   answerBody.innerHTML = `<div class="skeleton" style="height:20px; width:100%; margin-bottom:12px;"></div>
                           <div class="skeleton" style="height:20px; width:90%; margin-bottom:12px;"></div>
                           <div class="skeleton" style="height:20px; width:95%; margin-bottom:12px;"></div>
                           <div class="skeleton" style="height:20px; width:60%;"></div>`;
-  confidenceBadge.textContent = "กำลังประมวลผล";
+  confidenceBadge.textContent = lang === "en" ? "Processing" : "กำลังประมวลผล";
   confidenceBadge.className = "confidence low";
   answerBody.textContent = "";
   evidenceSection.classList.add("hidden");
 
-  const evidence = retrieve(question, 6);
+  const evidence = (window.retrieve || retrieve)(question, 6, targetChunks);
 
   if (evidence.length === 0) {
-    answerBody.textContent = "ไม่พบข้อความที่เกี่ยวข้องกับคำถามนี้ในเอกสารทั้ง 4 ไฟล์ ลองระบุชื่อหลักสูตร (IT, DSBA, AIT, IT-INTER) หรือคำสำคัญให้ชัดเจนขึ้น";
-    confidenceBadge.textContent = "ไม่พบข้อมูล";
+    if (lang === "en") {
+      answerBody.textContent = "No relevant text was found in the curriculum documents for this query. Please try specifying the curriculum name (IT, DSBA, AIT, IT-INTER) or using more specific keywords.";
+      confidenceBadge.textContent = "No Data Found";
+    } else {
+      answerBody.textContent = "ไม่พบข้อความที่เกี่ยวข้องกับคำถามนี้ในเอกสารทั้ง 4 ไฟล์ ลองระบุชื่อหลักสูตร (IT, DSBA, AIT, IT-INTER) หรือคำสำคัญให้ชัดเจนขึ้น";
+      confidenceBadge.textContent = "ไม่พบข้อมูล";
+    }
     confidenceBadge.className = "confidence none";
     button.disabled = false;
     loading.classList.remove("active");
     return;
   }
 
-  document.getElementById("loadingText").textContent = "พบหลักฐาน " + evidence.length + " ส่วน กำลังให้ AI สรุปคำตอบ...";
+  document.getElementById("loadingText").textContent = lang === "en"
+    ? `Found ${evidence.length} evidence pieces. AI is generating response...`
+    : `พบหลักฐาน ${evidence.length} ส่วน กำลังให้ AI สรุปคำตอบ...`;
 
   const contextBlocks = evidence.map((c, i) =>
     `[${i + 1}] เอกสาร: ${c.docName} (หน้า ${c.page})\n${c.text}`
   ).join("\n\n---\n\n");
 
-  const prompt = `คุณคือผู้ช่วยตอบคำถามจากเอกสารหลักสูตรของสถาบันการศึกษา ตอบข้อมูลตามความเป็นจริงโดยอ้างอิงจากหลักฐานด้านล่าง
+  let prompt = "";
+  if (lang === "en") {
+    prompt = `You are an intelligent academic advisor assistant for curriculums at the Faculty of Information Technology, King Mongkut's Institute of Technology Ladkrabang (KMITL). Answer user questions truthfully and accurately based strictly on the evidence below.
+
+Evidence:
+${contextBlocks}
+
+User Question: ${question}
+
+Strict Rules:
+- The user asked in ENGLISH. You MUST answer in natural, fluent, and professional ENGLISH.
+- Translate and synthesize relevant facts from the Thai evidence into clear English.
+- If the question is ambiguous, broad, or lacks necessary details (e.g. which curriculum or specific track the user is asking about), provide the best available facts from the evidence and ALWAYS ask clarifying questions to guide the user.
+- Do NOT mention document reference numbers like [1] and do NOT say "according to page...".
+- Never fabricate, invent, or extrapolate information outside the provided evidence.
+- Format your response with clear paragraphs, bullet points, and bold text for readability.`;
+  } else {
+    prompt = `คุณคือผู้ช่วยตอบคำถามจากเอกสารหลักสูตรของสถาบันการศึกษา ตอบข้อมูลตามความเป็นจริงโดยอ้างอิงจากหลักฐานด้านล่าง
 
 หลักฐาน:
 ${contextBlocks}
 
 คำถามจากผู้ใช้: ${question}
 
-กติกาการตอบ:
-- ตอบเป็นภาษาไทยอย่างเป็นธรรมชาติเหมือนเวลาที่พูดคุยกับผู้ใช้ (ไม่ต้องบอกว่าอ้างอิงจากรหัสเอกสาร [1] และไม่ต้องบอกว่า "จากเอกสารหน้า...")
+กติกาการตอบ (STRICT RULES):
+- ผู้ใช้ถามเป็นภาษาไทย คุณต้องตอบเป็นภาษาไทยอย่างเป็นธรรมชาติ สุภาพ และถูกต้อง
+- สรุปและตอบข้อมูลตามความเป็นจริงโดยอ้างอิงจากหลักฐานด้านบน
+- หากคำถามของผู้ใช้กำกวม กว้างเกินไป หรือมีข้อมูลไม่เพียงพอในการตอบให้ชัดเจน (เช่น ไม่ได้ระบุสาขาวิชาที่ต้องการ) ให้ตอบข้อมูลเท่าที่มีและมีคำถามถามกลับไปยังผู้ใช้ก่อนเสมอเพื่อขอความชัดเจน
+- ไม่ต้องบอกว่าอ้างอิงจากรหัสเอกสาร [1] และไม่ต้องบอกว่า "จากเอกสารหน้า..."
 - ห้ามสร้างข้อมูลขึ้นมาเองนอกเหนือจากหลักฐาน
-- จัดรูปแบบให้อ่านง่าย`;
+- จัดรูปแบบให้อ่านง่าย ใช้หัวข้อย่อยและตัวหนาตามความเหมาะสม`;
+  }
 
   try {
     const response = await fetch("/api/chat", {
@@ -192,7 +338,7 @@ ${contextBlocks}
       })
     });
     const data = await response.json();
-    const text = (data.choices && data.choices[0] && data.choices[0].message) ? data.choices[0].message.content : "ระบบไม่สามารถสร้างคำตอบได้ในขณะนี้";
+    const text = (data.choices && data.choices[0] && data.choices[0].message) ? data.choices[0].message.content : (lang === "en" ? "System is unable to generate an answer at this time." : "ระบบไม่สามารถสร้างคำตอบได้ในขณะนี้");
     
     let finalHtml = text || "";
     let thinkContent = "";
@@ -211,22 +357,29 @@ ${contextBlocks}
     if (thinkContent) {
         finalHtml = `<details style="margin-bottom:15px; font-size:11px; background:var(--blue-light); border:1px solid var(--border); border-radius:6px; padding:10px;">
           <summary style="cursor:pointer; font-weight:bold; color:var(--blue);">
-            คลิกเพื่อเปิด/ปิด ดูเบื้องหลังการคิดของ AI (ตรวจสอบข้อมูลดิบ)
+            ${lang === 'en' ? 'Click to show/hide AI reasoning process' : 'คลิกเพื่อเปิด/ปิด ดูเบื้องหลังการคิดของ AI (ตรวจสอบข้อมูลดิบ)'}
           </summary>
           <pre style="white-space:pre-wrap; margin-top:10px; font-family:inherit; color:var(--text); opacity:0.8;">${escapeHtml(thinkContent)}</pre>
         </details>` + finalHtml;
     }
     
-    answerBody.innerHTML = finalHtml || "ระบบไม่สามารถสร้างคำตอบได้ในขณะนี้";
-    confidenceBadge.textContent = "อ้างอิงจากเอกสารจริง";
+    answerBody.innerHTML = finalHtml || (lang === "en" ? "System is unable to generate an answer at this time." : "ระบบไม่สามารถสร้างคำตอบได้ในขณะนี้");
+    confidenceBadge.textContent = lang === "en" ? "Referenced from documents" : "อ้างอิงจากเอกสารจริง";
     confidenceBadge.className = "confidence";
   } catch (err) {
-    answerBody.textContent = "เกิดข้อผิดพลาดในการเชื่อมต่อ AI: " + err.message + "\n\nหลักฐานที่เกี่ยวข้องที่ค้นพบยังแสดงอยู่ด้านล่าง";
-    confidenceBadge.textContent = "เชื่อมต่อ AI ไม่สำเร็จ";
+    if (lang === "en") {
+      answerBody.textContent = "Error connecting to AI: " + err.message + "\n\nRelevant evidence found is still displayed below.";
+      confidenceBadge.textContent = "AI Connection Failed";
+    } else {
+      answerBody.textContent = "เกิดข้อผิดพลาดในการเชื่อมต่อ AI: " + err.message + "\n\nหลักฐานที่เกี่ยวข้องที่ค้นพบยังแสดงอยู่ด้านล่าง";
+      confidenceBadge.textContent = "เชื่อมต่อ AI ไม่สำเร็จ";
+    }
     confidenceBadge.className = "confidence none";
   }
 
-  document.getElementById("answerTime").textContent = new Date().toLocaleTimeString("th-TH", {hour:"2-digit", minute:"2-digit"}) + " น.";
+  const timeLocale = lang === 'en' ? 'en-US' : 'th-TH';
+  const timeSuffix = lang === 'en' ? '' : ' น.';
+  document.getElementById("answerTime").textContent = new Date().toLocaleTimeString(timeLocale, {hour:"2-digit", minute:"2-digit"}) + timeSuffix;
 
   evidenceGrid.innerHTML = evidence.map((c, i) => {
     const preview = c.text.replace(/\n/g, " ").slice(0, 140);
@@ -234,14 +387,15 @@ ${contextBlocks}
       <div class="document-preview"><div class="file-number">${i+1}</div><div class="snippet-preview">${escapeHtml(preview)}...</div></div>
       <div class="evidence-content">
         <div class="file-name">${escapeHtml(c.docName)}</div>
-        <div class="file-page">หน้า ${c.page}</div>
-        <button class="view-btn" onclick='viewDocument(${c.id})'>ดูข้อความเต็ม</button>
+        <div class="file-page">${lang === 'en' ? 'Page ' : 'หน้า '}${c.page}</div>
+        <button class="view-btn" onclick='viewDocument(${c.id})'>${lang === 'en' ? 'View full text' : 'ดูข้อความเต็ม'}</button>
       </div>
     </div>`;
   }).join("");
   evidenceSection.classList.remove("hidden");
 
-  historyItems.unshift({ q: question, t: new Date().toLocaleTimeString("th-TH", {hour:"2-digit", minute:"2-digit"}) });
+  const histTime = new Date().toLocaleTimeString(timeLocale, {hour:"2-digit", minute:"2-digit"}) + timeSuffix;
+  historyItems.unshift({ q: question, t: histTime });
   historyItems = historyItems.slice(0, 6);
   renderHistory();
 
@@ -250,8 +404,7 @@ ${contextBlocks}
   
   // Save to Firebase
   if (question) {
-    const timeStr = new Date().toLocaleTimeString("th-TH", {hour:"2-digit", minute:"2-digit"});
-    await saveHistoryToDB(question, timeStr);
+    await saveHistoryToDB(question, histTime);
 
     // Notification
     let enableNotifications = true;
@@ -264,7 +417,7 @@ ${contextBlocks}
     } catch(e) {}
     
     if (enableNotifications) {
-        showToast('✅ AI ค้นหาข้อมูลเสร็จเรียบร้อยแล้ว');
+        showToast(lang === 'en' ? '✅ AI completed search & answer generation' : '✅ AI ค้นหาข้อมูลเสร็จเรียบร้อยแล้ว');
     }
   }
 }
@@ -516,6 +669,8 @@ window.notReady = notReady;
 window.askQuestion = askQuestion;
 window.useQuestion = useQuestion;
 window.toggleTheme = toggleTheme;
+window.retrieve = retrieve;
+window.detectLanguage = detectLanguage;
 
 window.toggleSidebar = function() {
     const sidebar = document.querySelector('.sidebar');
@@ -806,8 +961,8 @@ window.changePage = function(el, page) {
 
 // Hook retrieve to save history to localStorage
 const originalRetrieve = window.retrieve;
-window.retrieve = function(query, k) {
-    const results = originalRetrieve(query, k);
+window.retrieve = function(query, k, sourceChunks) {
+    const results = originalRetrieve ? originalRetrieve(query, k, sourceChunks) : [];
     
     // Save to local storage
     try {
