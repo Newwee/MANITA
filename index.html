@@ -151,7 +151,8 @@
       </div>
 
       <nav class="nav">
-        <button class="nav-item active" data-page="ask" onclick="changePage(this,'ask')"><span class="nav-icon">⌕</span><span class="nav-label">ถามข้อมูล</span></button>
+        <button class="nav-item active" data-page="ask" onclick="switchAskMode('single'); changePage(this,'ask')"><span class="nav-icon">⌕</span><span class="nav-label">ถามข้อมูล</span></button>
+        <button class="nav-item" data-page="ask-batch" onclick="switchAskMode('batch'); changePage(this,'ask')"><span class="nav-icon">📂</span><span class="nav-label">ส่งไฟล์คำถาม (Batch)</span></button>
         <button class="nav-item" data-page="docs" onclick="changePage(this,'docs')"><span class="nav-icon">▣</span><span class="nav-label">เอกสารทั้งหมด</span></button>
         <button class="nav-item" data-page="data" onclick="changePage(this,'data')"><span class="nav-icon">▦</span><span class="nav-label">ตารางข้อมูล</span></button>
         <button class="nav-item" data-page="summary" onclick="changePage(this,'summary')"><span class="nav-icon">▤</span><span class="nav-label">สรุปประเด็นสำคัญ</span></button>
@@ -193,39 +194,135 @@
 
         <div class="content-grid">
           <section>
-            <div class="card question-card">
-              <div class="section-title">พิมพ์คำถามของคุณ</div>
-              <div class="question-box">
-                <textarea id="questionInput" placeholder="เช่น หลักสูตร DSBA มีจำนวนหน่วยกิตรวมเท่าไหร่ และมีวิชาบังคับกลุ่มใดบ้าง"></textarea>
-                <div class="question-controls">
-                  <div class="controls-left">
-                    <select id="scopeBtn" class="select-input" style="max-width: 200px; height: 38px; padding: 6px 32px 6px 12px; font-size: 13px;">
-                      <option value="all">◉ ค้นหาทุกหลักสูตร</option>
-                      <option value="IT">หลักสูตร IT</option>
-                      <option value="DSBA">หลักสูตร DSBA</option>
-                      <option value="AIT">หลักสูตร AIT</option>
-                      <option value="IT-INTER">หลักสูตร IT (นานาชาติ)</option>
-                    </select>
-                    <span class="shortcut-hint"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> เพื่อค้นหา</span>
-                  </div>
-                  <button id="searchButton" class="search-btn" onclick="askQuestion()">ค้นหาคำตอบ <span>⌕</span></button>
-                </div>
-              </div>
-              <div id="loading" class="loading"><div class="spinner"></div><span id="loadingText">กำลังค้นข้อมูลและประมวลผลด้วย AI...</span></div>
+            <!-- MODE SWITCH TABS -->
+            <div class="mode-tabs" style="display: flex; gap: 10px; margin-bottom: 18px;">
+              <button id="tabModeSingle" class="mode-tab-btn active" onclick="switchAskMode('single')" style="padding: 10px 20px; border-radius: 8px; border: 1px solid var(--gold); background: var(--gold); color: #000; font-weight: bold; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; transition: all 0.2s;">
+                <span>💬</span> ถามทีละข้อ (Single Question)
+              </button>
+              <button id="tabModeBatch" class="mode-tab-btn" onclick="switchAskMode('batch')" style="padding: 10px 20px; border-radius: 8px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; font-size: 14px; transition: all 0.2s;">
+                <span>📂</span> อัปโหลดไฟล์ถามคำตอบ (Batch Evaluation / CSV)
+              </button>
             </div>
 
-            <div class="card answer-card" id="answerCard">
-              <div class="answer-header">
-                <div class="answer-title">คำตอบจากเอกสาร</div>
-                <div class="confidence" id="confidenceBadge">รอคำถาม</div>
-                <div class="answer-meta"><span id="answerTime"></span></div>
+            <!-- VIEW 1: SINGLE QUESTION (Original) -->
+            <div id="singleAskView">
+              <div class="card question-card">
+                <div class="section-title">พิมพ์คำถามของคุณ</div>
+                <div class="question-box">
+                  <textarea id="questionInput" placeholder="เช่น หลักสูตร DSBA มีจำนวนหน่วยกิตรวมเท่าไหร่ และมีวิชาบังคับกลุ่มใดบ้าง"></textarea>
+                  <div class="question-controls">
+                    <div class="controls-left">
+                      <select id="scopeBtn" class="select-input" style="max-width: 200px; height: 38px; padding: 6px 32px 6px 12px; font-size: 13px;">
+                        <option value="all">◉ ค้นหาทุกหลักสูตร</option>
+                        <option value="IT">หลักสูตร IT</option>
+                        <option value="DSBA">หลักสูตร DSBA</option>
+                        <option value="AIT">หลักสูตร AIT</option>
+                        <option value="IT-INTER">หลักสูตร IT (นานาชาติ)</option>
+                      </select>
+                      <span class="shortcut-hint"><kbd>Ctrl</kbd> + <kbd>Enter</kbd> เพื่อค้นหา</span>
+                    </div>
+                    <button id="searchButton" class="search-btn" onclick="askQuestion()">ค้นหาคำตอบ <span>⌕</span></button>
+                  </div>
+                </div>
+                <div id="loading" class="loading"><div class="spinner"></div><span id="loadingText">กำลังค้นข้อมูลและประมวลผลด้วย AI...</span></div>
               </div>
-              <div id="answerBody" class="answer-body">พิมพ์คำถามด้านบนแล้วกด "ค้นหาคำตอบ" ระบบจะค้นข้อความจริงจากเอกสารหลักสูตรทั้ง 4 ไฟล์ แล้วให้ AI สรุปคำตอบพร้อมอ้างอิงหลักฐาน</div>
-              <div id="evidenceSection" class="hidden">
-                <div class="evidence-title">หลักฐานที่ใช้ในการตอบ</div>
-                <div class="evidence-grid" id="evidenceGrid"></div>
+
+              <div class="card answer-card" id="answerCard">
+                <div class="answer-header">
+                  <div class="answer-title">คำตอบจากเอกสาร</div>
+                  <div class="confidence" id="confidenceBadge">รอคำถาม</div>
+                  <div class="answer-meta"><span id="answerTime"></span></div>
+                </div>
+                <div id="answerBody" class="answer-body">พิมพ์คำถามด้านบนแล้วกด "ค้นหาคำตอบ" ระบบจะค้นข้อความจริงจากเอกสารหลักสูตรทั้ง 4 ไฟล์ แล้วให้ AI สรุปคำตอบพร้อมอ้างอิงหลักฐาน</div>
+                <div id="evidenceSection" class="hidden">
+                  <div class="evidence-title">หลักฐานที่ใช้ในการตอบ</div>
+                  <div class="evidence-grid" id="evidenceGrid"></div>
+                </div>
+                <div class="info-banner"><span>ⓘ</span><span>คำตอบสร้างจากข้อความที่สกัดได้จริงจากไฟล์ PDF เท่านั้น หากไม่พบข้อมูลเพียงพอ ระบบจะแจ้งให้ทราบ</span></div>
               </div>
-              <div class="info-banner"><span>ⓘ</span><span>คำตอบสร้างจากข้อความที่สกัดได้จริงจากไฟล์ PDF เท่านั้น หากไม่พบข้อมูลเพียงพอ ระบบจะแจ้งให้ทราบ</span></div>
+            </div>
+
+            <!-- VIEW 2: BATCH EVALUATION (File Upload & Auto-Answer) -->
+            <div id="batchAskView" style="display: none;">
+              <div class="card" style="padding: 24px; margin-bottom: 20px;">
+                <div class="section-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                  <span>📂 อัปโหลดไฟล์คำถามเพื่อสร้างคำตอบอัตโนมัติ (Batch Questions)</span>
+                  <span class="badge" style="background: rgba(23, 105, 224, 0.15); color: var(--blue); padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 600;">Staff / Evaluation Mode</span>
+                </div>
+                <p style="color: var(--text-dim); font-size: 13px; margin-bottom: 20px; line-height: 1.6;">
+                  ระบบจะอ่านคำถามทั้งหมดจากไฟล์ <code>.csv</code> (เช่น <code>easy_normal_blank.csv</code>) ประมวลผลผ่าน RAG & AI อัตโนมัติทีละข้อ พร้อมเติมคอลัมน์คำตอบ (answer) ให้ครบถ้วนและดาวน์โหลดไฟล์ผลลัพธ์ได้ทันที
+                </p>
+
+                <!-- Upload Dropzone -->
+                <div id="batchDropzone" style="border: 2px dashed var(--border); border-radius: 12px; padding: 35px 20px; text-align: center; background: var(--bg); cursor: pointer; transition: all 0.2s;" onclick="document.getElementById('batchFileInput').click()">
+                  <input type="file" id="batchFileInput" accept=".csv,.txt" style="display: none;" onchange="handleBatchFileSelect(event)">
+                  <div style="font-size: 42px; margin-bottom: 12px;">📄</div>
+                  <div style="font-weight: 600; font-size: 16px; margin-bottom: 6px; color: var(--text);">คลิกเพื่อเลือกไฟล์ หรือลากไฟล์คำถามมาวางที่นี่</div>
+                  <div style="font-size: 13px; color: var(--text-dim);">รองรับไฟล์ .csv (เช่น easy_normal_blank.csv ที่มีหัวตาราง question,level,answer)</div>
+                </div>
+
+                <!-- Fast Actions -->
+                <div style="margin-top: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
+                  <span style="font-size: 13px; color: var(--text-dim);">หรือทดสอบด่วนด้วยไฟล์ Staff:</span>
+                  <button type="button" class="header-btn" onclick="loadSampleBlankCSV()" style="font-size: 12px; padding: 7px 15px; background: rgba(23, 105, 224, 0.12); border-color: var(--blue); color: var(--blue); font-weight: 600; cursor: pointer;">
+                    ⚡ โหลดข้อสอบตัวอย่างทันที (easy_normal_blank.csv - 20 ข้อ)
+                  </button>
+                </div>
+
+                <!-- Batch Controls Toolbar -->
+                <div id="batchControls" style="display: none; margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border);">
+                  <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 15px;">
+                    <div>
+                      <span style="font-weight: 700; font-size: 15px; color: var(--text);" id="batchFileInfo">โหลดแล้ว: 20 ข้อคำถาม</span>
+                      <span id="batchProgressText" style="margin-left: 12px; font-size: 13px; color: var(--gold); font-weight: 600;"></span>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap;">
+                      <button id="btnStartBatch" class="search-btn" onclick="startBatchProcessing()" style="padding: 10px 22px; font-size: 14px;">
+                        🚀 เริ่มสร้างคำตอบทั้งหมด (Start Batch)
+                      </button>
+                      <button id="btnStopBatch" class="header-btn danger" onclick="stopBatchProcessing()" style="display: none; padding: 10px 18px;">
+                        ⏹️ หยุดชั่วคราว
+                      </button>
+                      <button id="btnDownloadCsv" class="header-btn" onclick="downloadBatchCSV()" style="display: none; background: rgba(40, 167, 69, 0.18); border-color: #28a745; color: #28a745; font-weight: 600; padding: 10px 18px;">
+                        📥 ดาวน์โหลดไฟล์ .CSV (UTF-8 BOM)
+                      </button>
+                      <button id="btnDownloadXlsx" class="header-btn" onclick="downloadBatchXLSX()" style="display: none; background: rgba(23, 105, 224, 0.18); border-color: var(--blue); color: var(--blue); font-weight: 600; padding: 10px 18px;">
+                        📊 ดาวน์โหลดไฟล์ Excel (.xlsx)
+                      </button>
+                      <button id="btnResetBatch" class="header-btn" onclick="resetBatchEvaluation()" style="padding: 10px 15px;">
+                        🔄 ล้างข้อมูล
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Progress Bar -->
+                  <div id="batchProgressBarContainer" style="display: none; width: 100%; height: 10px; background: var(--border); border-radius: 5px; overflow: hidden; margin-bottom: 20px;">
+                    <div id="batchProgressBar" style="width: 0%; height: 100%; background: linear-gradient(90deg, var(--blue), var(--gold)); transition: width 0.3s ease;"></div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Result Table Card -->
+              <div class="card" id="batchResultCard" style="display: none; padding: 22px;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                  <h3 style="margin: 0; font-size: 16px; color: var(--gold);">ตารางแสดงคำถามและคำตอบที่สร้างได้ (Live Output Table)</h3>
+                  <div id="batchTableStats" style="font-size: 12px; color: var(--text-dim);"></div>
+                </div>
+                <div style="overflow-x: auto; max-height: 600px; border: 1px solid var(--border); border-radius: 8px;">
+                  <table id="batchTable" style="width: 100%; border-collapse: collapse; font-size: 13px; text-align: left;">
+                    <thead>
+                      <tr style="background: rgba(23, 105, 224, 0.1); border-bottom: 2px solid var(--border); position: sticky; top: 0; z-index: 2;">
+                        <th style="padding: 12px 10px; width: 45px; text-align: center;">ข้อ</th>
+                        <th style="padding: 12px 10px; width: 75px; text-align: center;">ระดับ</th>
+                        <th style="padding: 12px 14px; width: 35%;">คำถาม (Question)</th>
+                        <th style="padding: 12px 14px;">คำตอบที่สร้างได้ (Generated Answer)</th>
+                        <th style="padding: 12px 10px; width: 100px; text-align: center;">สถานะ</th>
+                      </tr>
+                    </thead>
+                    <tbody id="batchTableBody"></tbody>
+                  </table>
+                </div>
+              </div>
             </div>
           </section>
 
