@@ -71,6 +71,7 @@ function init() {
 /* ---------- Language & Cross-Lingual Search Dictionary ---------- */
 function detectLanguage(text) {
   if (!text) return 'th';
+  if (/[\u4E00-\u9FFF]/.test(text)) return 'zh';
   if (/[\u0E00-\u0E7F]/.test(text)) return 'th';
   if (/[a-zA-Z]/.test(text)) return 'en';
   return 'th';
@@ -82,6 +83,7 @@ function normalizeThai(str) {
 }
 
 const EN_TH_KEYWORDS = {
+  // English Keywords
   'credit': ['หน่วยกิต', 'หนวยกิต', 'จำนวนหน่วยกิต', 'จำนวนหนวยกิต'],
   'credits': ['หน่วยกิต', 'หนวยกิต', 'จำนวนหน่วยกิต', 'จำนวนหนวยกิต'],
   'total credit': ['หน่วยกิตรวม', 'หนวยกิตรวม', 'จำนวนหน่วยกิต', 'จำนวนหนวยกิต'],
@@ -135,15 +137,53 @@ const EN_TH_KEYWORDS = {
   'major': ['วิชาเอก', 'แขนง', 'กลุ่มวิชา', 'กลุมวิชา', 'ความเชี่ยวชาญเฉพาะ'],
   'track': ['กลุ่มวิชา', 'กลุมวิชา', 'แขนงวิชา', 'ความเชี่ยวชาญเฉพาะ'],
   'english': ['ภาษาอังกฤษ', 'นานาชาติ', 'inter'],
-  'thai': ['ภาษาไทย']
+  'thai': ['ภาษาไทย'],
+
+  // Chinese Keywords (中文关键词)
+  '学分': ['หน่วยกิต', 'หนวยกิต', 'จำนวนหน่วยกิต', 'จำนวนหนวยกิต'],
+  '总学分': ['หน่วยกิตรวม', 'หนวยกิตรวม', 'จำนวนหน่วยกิต', 'จำนวนหนวยกิต'],
+  '课程': ['หลักสูตร', 'หลักสตู ร', 'รายวิชา', 'วิชา', 'มคอ.2'],
+  '专业': ['สาขาวิชา', 'หลักสูตร', 'วิชาเอก', 'แขนง'],
+  '学位': ['ปริญญา', 'ชื่อปริญญา', 'วิทยาศาสตรบัณฑิต'],
+  '学士': ['ปริญญาตรี', 'วิทยาศาสตรบัณฑิต'],
+  '学费': ['ค่าธรรมเนียม', 'คาธรรมเนียม', 'ค่าเทอม', 'คาเทอม', 'ค่าใช้จ่าย', 'คาใชจาย'],
+  '费用': ['ค่าธรรมเนียม', 'คาธรรมเนียม', 'ค่าเทอม', 'คาเทอม', 'ค่าใช้จ่าย', 'คาใชจาย'],
+  '职业': ['อาชีพ', 'สามารถประกอบได้', 'สามารถประกอบได', 'ประกอบอาชีพ'],
+  '就业': ['อาชีพ', 'สามารถประกอบได้', 'สามารถประกอบได', 'ประกอบอาชีพ'],
+  '工作': ['อาชีพ', 'ตำแหน่งงาน', 'ตำแหนงงาน', 'ประกอบอาชีพ'],
+  '教师': ['อาจารย์', 'อาจารย', 'อาจารย์ผู้รับผิดชอบ', 'อาจารยผูรับผิดชอบ', 'อาจารย์ประจำ'],
+  '老师': ['อาจารย์', 'อาจารย', 'อาจารย์ผู้รับผิดชอบ', 'อาจารยผูรับผิดชอบ', 'อาจารย์ประจำ'],
+  '教授': ['อาจารย์', 'อาจารย', 'ศ.', 'รศ.', 'ผศ.', 'ดร.'],
+  '讲师': ['อาจารย์', 'อาจารย', 'อาจารย์พิเศษ', 'วิทยากร'],
+  '目标': ['วัตถุประสงค์', 'วัตถุประสงค', 'เป้าหมาย', 'ปรัชญา'],
+  '培养目标': ['วัตถุประสงค์', 'วัตถุประสงค', 'ปรัชญา'],
+  '学习成果': ['ผลการเรียนรู้', 'ผลการเรียนรู', 'ผลลัพธ์การเรียนรู้', 'plo'],
+  '实习': ['ฝึกงาน', 'ฝกงาน', 'สหกิจศึกษา', 'สหกิจ'],
+  '先修': ['วิชาบังคับก่อน'],
+  '学期': ['ภาคการศึกษา', 'ภาคเรียน', 'ชั้นปี', 'ชั้นป'],
+  '学年': ['ชั้นปี', 'ชั้นป', 'พ.ศ.', 'ปีการศึกษา', 'ปการศึกษา'],
+  '学制': ['ระยะเวลา', '4 ปี', '4 ป', 'ปริญญาตรี 4 ปี', 'ปริญญาตรี 4 ป'],
+  '录取': ['การรับเข้า', 'การรับเขา', 'คุณสมบัติ', 'รับเฉพาะนักศึกษา'],
+  '申请': ['การรับเข้า', 'การรับเขา', 'คุณสมบัติ'],
+  '条件': ['คุณสมบัติ', 'เกณฑ์', 'เงื่อนไข'],
+  '信息技术': ['IT', 'เทคโนโลยีสารสนเทศ'],
+  '数据科学': ['DSBA', 'วิทยาการข้อมูล'],
+  '商业分析': ['DSBA', 'วิเคราะห์ข้อมูลและธุรกิจ'],
+  '人工智能': ['AIT', 'ปัญญาประดิษฐ์'],
+  '国际': ['IT-INTER', 'นานาชาติ', 'inter']
 };
 
 function expandQuery(query) {
   const lower = query.toLowerCase();
   const terms = [lower];
-  for (const [enKey, thValues] of Object.entries(EN_TH_KEYWORDS)) {
-    const regex = new RegExp(`\\b${enKey}\\b`, 'i');
-    if (regex.test(lower)) {
+  for (const [key, thValues] of Object.entries(EN_TH_KEYWORDS)) {
+    let matched = false;
+    if (/[\u4E00-\u9FFF]/.test(key)) {
+      matched = lower.includes(key);
+    } else {
+      matched = new RegExp('\\b' + key + '\\b', 'i').test(lower);
+    }
+    if (matched) {
       thValues.forEach(v => terms.push(v));
     }
   }
@@ -172,6 +212,9 @@ function scoreChunk(query, chunkText) {
     }
   };
   grams(8); grams(6); grams(4);
+  if (/[\u4E00-\u9FFF]/.test(lowerQ)) {
+    grams(3); grams(2);
+  }
 
   // Token matching for words
   const tokens = lowerQ.split(/[\s,?.!/]+/).filter(t => t.length >= 2);
@@ -198,10 +241,10 @@ function scoreChunk(query, chunkText) {
 function docBoost(query, doc) {
   const lower = query.toLowerCase();
   let boost = 0;
-  if (doc === "DSBA" && (lower.includes("dsba") || lower.includes("วิทยาการข้อมูล") || lower.includes("data science") || lower.includes("business analytics"))) boost += 35;
-  if (doc === "AIT" && (lower.includes("ait") || lower.includes("ปัญญาประดิษฐ์") || lower.includes("artificial intelligence") || lower.includes("ai "))) boost += 35;
-  if (doc === "IT-INTER" && (lower.includes("inter") || lower.includes("นานาชาติ") || lower.includes("international") || lower.includes("ธุรกิจ") || lower.includes("global"))) boost += 30;
-  if (doc === "IT" && /(^|[^a-z])it([^a-z]|$)/.test(lower) && !lower.includes("inter")) boost += 20;
+  if (doc === "DSBA" && (lower.includes("dsba") || lower.includes("วิทยาการข้อมูล") || lower.includes("data science") || lower.includes("business analytics") || lower.includes("数据科学") || lower.includes("商业分析"))) boost += 35;
+  if (doc === "AIT" && (lower.includes("ait") || lower.includes("ปัญญาประดิษฐ์") || lower.includes("artificial intelligence") || lower.includes("ai ") || lower.includes("人工智能"))) boost += 35;
+  if (doc === "IT-INTER" && (lower.includes("inter") || lower.includes("นานาชาติ") || lower.includes("international") || lower.includes("ธุรกิจ") || lower.includes("global") || lower.includes("国际"))) boost += 30;
+  if (doc === "IT" && (/(^|[^a-z])it([^a-z]|$)/.test(lower) || lower.includes("信息技术")) && !lower.includes("inter") && !lower.includes("国际")) boost += 20;
   return boost;
 }
 
@@ -254,15 +297,24 @@ async function askQuestion() {
   const lang = detectLanguage(question);
 
   button.disabled = true;
+  let loadingSearchText = "กำลังค้นหาข้อความที่เกี่ยวข้องในเอกสาร...";
+  let processingText = "กำลังประมวลผล";
+  if (lang === "zh") {
+    loadingSearchText = "正在检索相关课程文件...";
+    processingText = "处理中";
+  } else if (lang === "en") {
+    loadingSearchText = "Searching relevant information across curriculum documents...";
+    processingText = "Processing";
+  }
+
+  button.disabled = true;
   loading.classList.add("active");
-  document.getElementById("loadingText").textContent = lang === "en"
-    ? "Searching relevant information across curriculum documents..."
-    : "กำลังค้นหาข้อความที่เกี่ยวข้องในเอกสาร...";
+  document.getElementById("loadingText").textContent = loadingSearchText;
   answerBody.innerHTML = `<div class="skeleton" style="height:20px; width:100%; margin-bottom:12px;"></div>
                           <div class="skeleton" style="height:20px; width:90%; margin-bottom:12px;"></div>
                           <div class="skeleton" style="height:20px; width:95%; margin-bottom:12px;"></div>
                           <div class="skeleton" style="height:20px; width:60%;"></div>`;
-  confidenceBadge.textContent = lang === "en" ? "Processing" : "กำลังประมวลผล";
+  confidenceBadge.textContent = processingText;
   confidenceBadge.className = "confidence low";
   answerBody.textContent = "";
   evidenceSection.classList.add("hidden");
@@ -270,7 +322,10 @@ async function askQuestion() {
   const evidence = (window.retrieve || retrieve)(question, 6, targetChunks);
 
   if (evidence.length === 0) {
-    if (lang === "en") {
+    if (lang === "zh") {
+      answerBody.textContent = "未在课程文件中找到与此问题相关的具体内容，请尝试指定专业名称（IT, DSBA, AIT, IT-INTER）或使用更明确的关键词。";
+      confidenceBadge.textContent = "未找到数据";
+    } else if (lang === "en") {
       answerBody.textContent = "No relevant text was found in the curriculum documents for this query. Please try specifying the curriculum name (IT, DSBA, AIT, IT-INTER) or using more specific keywords.";
       confidenceBadge.textContent = "No Data Found";
     } else {
@@ -283,16 +338,35 @@ async function askQuestion() {
     return;
   }
 
-  document.getElementById("loadingText").textContent = lang === "en"
-    ? `Found ${evidence.length} evidence pieces. AI is generating response...`
-    : `พบหลักฐาน ${evidence.length} ส่วน กำลังให้ AI สรุปคำตอบ...`;
+  let foundEvidenceText = `พบหลักฐาน ${evidence.length} ส่วน กำลังให้ AI สรุปคำตอบ...`;
+  if (lang === "zh") {
+    foundEvidenceText = `找到 ${evidence.length} 条课程依据，AI 正在归纳生成回答...`;
+  } else if (lang === "en") {
+    foundEvidenceText = `Found ${evidence.length} evidence pieces. AI is generating response...`;
+  }
+  document.getElementById("loadingText").textContent = foundEvidenceText;
 
   const contextBlocks = evidence.map((c, i) =>
     `[${i + 1}] เอกสาร: ${c.docName} (หน้า ${c.page})\n${c.text}`
   ).join("\n\n---\n\n");
 
   let prompt = "";
-  if (lang === "en") {
+  if (lang === "zh") {
+    prompt = `你是一名针对先皇技术学院（KMITL）信息技术学院各专业本科课程大纲（TQF.2）的智能学术顾问助手。请严格根据下方提供的证据准确、真实地回答用户的问题。
+
+证据（Evidence）：
+${contextBlocks}
+
+用户问题（User Question）：${question}
+
+严格规则（Strict Rules）：
+- 用户使用【中文】提问，你必须使用自然、流畅、专业且准确的【中文】进行回答。
+- 将泰语证据中的相关课程事实准确归纳并翻译为中文。
+- 如果用户的问题模糊、宽泛或缺乏必要的信息（例如未指明是哪个专业或具体哪个方向），请先根据已有证据提供最佳回答，并务必【主动向用户提出澄清问题】以帮助用户进一步明确。
+- 请勿提及如 [1] 等文档编号标记，也不要说“根据第...页”。
+- 严禁编造或推测证据之外的任何虚假信息。
+- 格式清晰，适当使用段落、项目符号和加粗文字以增强可读性。`;
+  } else if (lang === "en") {
     prompt = `You are an intelligent academic advisor assistant for curriculums at the Faculty of Information Technology, King Mongkut's Institute of Technology Ladkrabang (KMITL). Answer user questions truthfully and accurately based strictly on the evidence below.
 
 Evidence:
@@ -338,7 +412,11 @@ ${contextBlocks}
       })
     });
     const data = await response.json();
-    const text = (data.choices && data.choices[0] && data.choices[0].message) ? data.choices[0].message.content : (lang === "en" ? "System is unable to generate an answer at this time." : "ระบบไม่สามารถสร้างคำตอบได้ในขณะนี้");
+    let defaultNoAnswer = "ระบบไม่สามารถสร้างคำตอบได้ในขณะนี้";
+    if (lang === "zh") defaultNoAnswer = "系统当前无法生成回答。";
+    else if (lang === "en") defaultNoAnswer = "System is unable to generate an answer at this time.";
+
+    const text = (data.choices && data.choices[0] && data.choices[0].message) ? data.choices[0].message.content : defaultNoAnswer;
     
     let finalHtml = text || "";
     let thinkContent = "";
@@ -355,19 +433,30 @@ ${contextBlocks}
         .replace(/\n/g, '<br>');
         
     if (thinkContent) {
+        let thinkLabel = 'คลิกเพื่อเปิด/ปิด ดูเบื้องหลังการคิดของ AI (ตรวจสอบข้อมูลดิบ)';
+        if (lang === 'zh') thinkLabel = '点击展开/折叠 AI 思考过程（查看原始推导）';
+        else if (lang === 'en') thinkLabel = 'Click to show/hide AI reasoning process';
+
         finalHtml = `<details style="margin-bottom:15px; font-size:11px; background:var(--blue-light); border:1px solid var(--border); border-radius:6px; padding:10px;">
           <summary style="cursor:pointer; font-weight:bold; color:var(--blue);">
-            ${lang === 'en' ? 'Click to show/hide AI reasoning process' : 'คลิกเพื่อเปิด/ปิด ดูเบื้องหลังการคิดของ AI (ตรวจสอบข้อมูลดิบ)'}
+            ${thinkLabel}
           </summary>
           <pre style="white-space:pre-wrap; margin-top:10px; font-family:inherit; color:var(--text); opacity:0.8;">${escapeHtml(thinkContent)}</pre>
         </details>` + finalHtml;
     }
     
-    answerBody.innerHTML = finalHtml || (lang === "en" ? "System is unable to generate an answer at this time." : "ระบบไม่สามารถสร้างคำตอบได้ในขณะนี้");
-    confidenceBadge.textContent = lang === "en" ? "Referenced from documents" : "อ้างอิงจากเอกสารจริง";
+    let confBadgeText = "อ้างอิงจากเอกสารจริง";
+    if (lang === "zh") confBadgeText = "基于真实课程文件";
+    else if (lang === "en") confBadgeText = "Referenced from documents";
+
+    answerBody.innerHTML = finalHtml || defaultNoAnswer;
+    confidenceBadge.textContent = confBadgeText;
     confidenceBadge.className = "confidence";
   } catch (err) {
-    if (lang === "en") {
+    if (lang === "zh") {
+      answerBody.textContent = "连接 AI 时发生错误: " + err.message + "\n\n下方仍保留已找到的相关依据供参考。";
+      confidenceBadge.textContent = "AI 连接失败";
+    } else if (lang === "en") {
       answerBody.textContent = "Error connecting to AI: " + err.message + "\n\nRelevant evidence found is still displayed below.";
       confidenceBadge.textContent = "AI Connection Failed";
     } else {
@@ -377,18 +466,36 @@ ${contextBlocks}
     confidenceBadge.className = "confidence none";
   }
 
-  const timeLocale = lang === 'en' ? 'en-US' : 'th-TH';
-  const timeSuffix = lang === 'en' ? '' : ' น.';
+  let timeLocale = 'th-TH';
+  let timeSuffix = ' น.';
+  if (lang === 'zh') {
+    timeLocale = 'zh-CN';
+    timeSuffix = '';
+  } else if (lang === 'en') {
+    timeLocale = 'en-US';
+    timeSuffix = '';
+  }
   document.getElementById("answerTime").textContent = new Date().toLocaleTimeString(timeLocale, {hour:"2-digit", minute:"2-digit"}) + timeSuffix;
+
+  let pagePrefix = 'หน้า ';
+  let viewBtnLabel = 'ดูข้อความเต็ม';
+  if (lang === 'zh') {
+    pagePrefix = '第 ';
+    viewBtnLabel = '查看全文';
+  } else if (lang === 'en') {
+    pagePrefix = 'Page ';
+    viewBtnLabel = 'View full text';
+  }
 
   evidenceGrid.innerHTML = evidence.map((c, i) => {
     const preview = c.text.replace(/\n/g, " ").slice(0, 140);
+    const pageDisplay = lang === 'zh' ? `第 ${c.page} 页` : `${pagePrefix}${c.page}`;
     return `<div class="evidence-card">
       <div class="document-preview"><div class="file-number">${i+1}</div><div class="snippet-preview">${escapeHtml(preview)}...</div></div>
       <div class="evidence-content">
         <div class="file-name">${escapeHtml(c.docName)}</div>
-        <div class="file-page">${lang === 'en' ? 'Page ' : 'หน้า '}${c.page}</div>
-        <button class="view-btn" onclick='viewDocument(${c.id})'>${lang === 'en' ? 'View full text' : 'ดูข้อความเต็ม'}</button>
+        <div class="file-page">${pageDisplay}</div>
+        <button class="view-btn" onclick='viewDocument(${c.id})'>${viewBtnLabel}</button>
       </div>
     </div>`;
   }).join("");
@@ -417,7 +524,10 @@ ${contextBlocks}
     } catch(e) {}
     
     if (enableNotifications) {
-        showToast(lang === 'en' ? '✅ AI completed search & answer generation' : '✅ AI ค้นหาข้อมูลเสร็จเรียบร้อยแล้ว');
+        let toastMsg = '✅ AI ค้นหาข้อมูลเสร็จเรียบร้อยแล้ว';
+        if (lang === 'zh') toastMsg = '✅ AI 课程检索与回答生成完成';
+        else if (lang === 'en') toastMsg = '✅ AI completed search & answer generation';
+        showToast(toastMsg);
     }
   }
 }
@@ -999,43 +1109,80 @@ window.switchSettingsTab = function(el, tab) {
     } catch(e) {}
     
     if (tab === 'general') {
+        let langLabel = 'ภาษาหลักของระบบ';
+        if (currentSettings.language === 'zh') langLabel = '系统主要语言';
+        else if (currentSettings.language === 'en') langLabel = 'Primary Language';
         panel.innerHTML = `
             <div style="margin-top:20px;">
-                <label style="display:block; margin-bottom:8px; color:var(--text);">ภาษาหลักของระบบ</label>
+                <label style="display:block; margin-bottom:8px; color:var(--text);">${langLabel}</label>
                 <select id="setLang" class="select-input" onchange="saveSettings('language', this.value)" style="max-width:300px;">
                     <option value="th" ${currentSettings.language === 'th' ? 'selected' : ''}>ภาษาไทย</option>
                     <option value="en" ${currentSettings.language === 'en' ? 'selected' : ''}>English</option>
+                    <option value="zh" ${currentSettings.language === 'zh' ? 'selected' : ''}>中文 (Chinese)</option>
                 </select>
             </div>
         `;
     } else if (tab === 'search') {
+        let searchLabel = 'จำนวนผลลัพธ์สูงสุดต่อหน้า';
+        let itemLabel = 'รายการ';
+        if (currentSettings.language === 'zh') {
+            searchLabel = '每页最大结果数';
+            itemLabel = '条';
+        } else if (currentSettings.language === 'en') {
+            searchLabel = 'Max results per page';
+            itemLabel = 'items';
+        }
         panel.innerHTML = `
             <div style="margin-top:20px;">
-                <label style="display:block; margin-bottom:8px; color:var(--text);">จำนวนผลลัพธ์สูงสุดต่อหน้า</label>
+                <label style="display:block; margin-bottom:8px; color:var(--text);">${searchLabel}</label>
                 <select id="setResults" class="select-input" onchange="saveSettings('resultsPerPage', parseInt(this.value))" style="max-width:300px;">
-                    <option value="3" ${currentSettings.resultsPerPage === 3 ? 'selected' : ''}>3 รายการ</option>
-                    <option value="5" ${currentSettings.resultsPerPage === 5 ? 'selected' : ''}>5 รายการ</option>
-                    <option value="10" ${currentSettings.resultsPerPage === 10 ? 'selected' : ''}>10 รายการ</option>
+                    <option value="3" ${currentSettings.resultsPerPage === 3 ? 'selected' : ''}>3 ${itemLabel}</option>
+                    <option value="5" ${currentSettings.resultsPerPage === 5 ? 'selected' : ''}>5 ${itemLabel}</option>
+                    <option value="10" ${currentSettings.resultsPerPage === 10 ? 'selected' : ''}>10 ${itemLabel}</option>
                 </select>
             </div>
         `;
     } else if (tab === 'display') {
+        let themeLabel = 'โหมดหน้าจอ';
+        let darkLabel = 'มืด (Dark Mode)';
+        let lightLabel = 'สว่าง (Light Mode)';
+        if (currentSettings.language === 'zh') {
+            themeLabel = '界面主题';
+            darkLabel = '深色模式 (Dark)';
+            lightLabel = '浅色模式 (Light)';
+        } else if (currentSettings.language === 'en') {
+            themeLabel = 'Display Mode';
+            darkLabel = 'Dark Mode';
+            lightLabel = 'Light Mode';
+        }
         panel.innerHTML = `
             <div style="margin-top:20px;">
-                <label style="display:block; margin-bottom:8px; color:var(--text);">โหมดหน้าจอ</label>
+                <label style="display:block; margin-bottom:8px; color:var(--text);">${themeLabel}</label>
                 <select id="setTheme" class="select-input" onchange="saveSettings('theme', this.value); applyTheme(this.value);" style="max-width:300px;">
-                    <option value="dark" ${currentSettings.theme === 'dark' ? 'selected' : ''}>มืด (Dark Mode)</option>
-                    <option value="light" ${currentSettings.theme === 'light' ? 'selected' : ''}>สว่าง (Light Mode)</option>
+                    <option value="dark" ${currentSettings.theme === 'dark' ? 'selected' : ''}>${darkLabel}</option>
+                    <option value="light" ${currentSettings.theme === 'light' ? 'selected' : ''}>${lightLabel}</option>
                 </select>
             </div>
         `;
     } else if (tab === 'notify') {
+        let notifyLabel = 'การแจ้งเตือนเมื่อ AI ค้นหาเสร็จ';
+        let onLabel = 'เปิดแจ้งเตือน';
+        let offLabel = 'ปิดแจ้งเตือน';
+        if (currentSettings.language === 'zh') {
+            notifyLabel = 'AI 完成检索后的系统提示';
+            onLabel = '开启提示';
+            offLabel = '关闭提示';
+        } else if (currentSettings.language === 'en') {
+            notifyLabel = 'Notification when AI finishes';
+            onLabel = 'Enable';
+            offLabel = 'Disable';
+        }
         panel.innerHTML = `
             <div style="margin-top:20px;">
-                <label style="display:block; margin-bottom:8px; color:var(--text);">การแจ้งเตือนเมื่อ AI ค้นหาเสร็จ</label>
+                <label style="display:block; margin-bottom:8px; color:var(--text);">${notifyLabel}</label>
                 <select id="setNotify" class="select-input" onchange="saveSettings('notifications', this.value === 'on')" style="max-width:300px;">
-                    <option value="on" ${currentSettings.notifications !== false ? 'selected' : ''}>เปิดแจ้งเตือน</option>
-                    <option value="off" ${currentSettings.notifications === false ? 'selected' : ''}>ปิดแจ้งเตือน</option>
+                    <option value="on" ${currentSettings.notifications !== false ? 'selected' : ''}>${onLabel}</option>
+                    <option value="off" ${currentSettings.notifications === false ? 'selected' : ''}>${offLabel}</option>
                 </select>
             </div>
         `;
@@ -1050,8 +1197,15 @@ window.saveSettings = function(key, value) {
         
         currentSettings[key] = value;
         localStorage.setItem('datalens_settings', JSON.stringify(currentSettings));
-        if (key === 'language') applyLanguage(value);
-        showToast('บันทึกการตั้งค่าแล้ว');
+        if (key === 'language') {
+            applyLanguage(value);
+            const activeTab = document.querySelector('.settings-tab.active');
+            if (activeTab) switchSettingsTab(activeTab, activeTab.dataset.tab);
+        }
+        let msg = 'บันทึกการตั้งค่าแล้ว';
+        if (currentSettings.language === 'zh') msg = '设置已保存';
+        else if (currentSettings.language === 'en') msg = 'Settings saved';
+        showToast(msg);
     } catch(e) {
         console.error(e);
     }
@@ -1501,6 +1655,19 @@ const I18N = {
         'desc_report': 'Automatically generate PDF summary reports for curriculums.',
         'desc_history': 'Your previous questions and search results.',
         'desc_settings': 'Customize your application preferences.', 'desc_admin': 'Admin dashboard for user management and statistics'
+    },
+    zh: {
+        'ask': '咨询问答', 'docs': '全部文档', 'data': '课程数据表',
+        'summary': '要点总结', 'compare': '课程对比',
+        'report': '自动报告', 'history': '检索历史', 'settings': '系统设置', 'admin': '系统管理 (Admin)',
+        'desc_ask': '输入关于各专业 TQF.2 课程大纲的问题，AI 将快速提供附带官方依据的解答。',
+        'desc_docs': '系统用于检索并作为事实依据的官方课程大纲文件清单。',
+        'desc_data': '从各专业 TQF.2 文档中抽取的真实课程结构数据。',
+        'desc_summary': '各专业培养特色、教学宗旨与核心要点总结。',
+        'desc_compare': '深入对比不同专业之间的学分、特色与就业方向差异。',
+        'desc_report': '自动生成各专业课程分析的 PDF 报告。',
+        'desc_history': '记录您在系统中的历史提问与检索结果。',
+        'desc_settings': '个性化调整您的系统偏好设置。', 'desc_admin': '管理员控制台，用于用户管理和系统统计。'
     }
 };
 
@@ -1526,19 +1693,41 @@ window.applyLanguage = function(lang) {
     });
     
     const statTitle = document.querySelector('.system-title');
-    if (statTitle) statTitle.textContent = lang === 'en' ? 'System Status' : 'สถานะระบบ';
+    if (statTitle) {
+        if (lang === 'zh') statTitle.textContent = '系统状态';
+        else if (lang === 'en') statTitle.textContent = 'System Status';
+        else statTitle.textContent = 'สถานะระบบ';
+    }
     
     const setGen = document.querySelector('.settings-tab[data-tab="general"]');
-    if (setGen) setGen.textContent = lang === 'en' ? 'General' : 'ทั่วไป';
+    if (setGen) {
+        if (lang === 'zh') setGen.textContent = '通用设置';
+        else if (lang === 'en') setGen.textContent = 'General';
+        else setGen.textContent = 'ทั่วไป';
+    }
     const setSec = document.querySelector('.settings-tab[data-tab="search"]');
-    if (setSec) setSec.textContent = lang === 'en' ? 'Search' : 'การค้นหา';
+    if (setSec) {
+        if (lang === 'zh') setSec.textContent = '检索设置';
+        else if (lang === 'en') setSec.textContent = 'Search';
+        else setSec.textContent = 'การค้นหา';
+    }
     const setDis = document.querySelector('.settings-tab[data-tab="display"]');
-    if (setDis) setDis.textContent = lang === 'en' ? 'Display' : 'การแสดงผล';
+    if (setDis) {
+        if (lang === 'zh') setDis.textContent = '显示外观';
+        else if (lang === 'en') setDis.textContent = 'Display';
+        else setDis.textContent = 'การแสดงผล';
+    }
     const setNot = document.querySelector('.settings-tab[data-tab="notify"]');
-    if (setNot) setNot.textContent = lang === 'en' ? 'Notifications' : 'การแจ้งเตือน';
+    if (setNot) {
+        if (lang === 'zh') setNot.textContent = '消息通知';
+        else if (lang === 'en') setNot.textContent = 'Notifications';
+        else setNot.textContent = 'การแจ้งเตือน';
+    }
     
     const sysTitle = document.querySelector('.right-title');
-    if (sysTitle && (sysTitle.textContent === 'ข้อมูลระบบ' || sysTitle.textContent === 'System Info')) {
-        sysTitle.textContent = lang === 'en' ? 'System Info' : 'ข้อมูลระบบ';
+    if (sysTitle && (sysTitle.textContent === 'ข้อมูลระบบ' || sysTitle.textContent === 'System Info' || sysTitle.textContent === '系统信息')) {
+        if (lang === 'zh') sysTitle.textContent = '系统信息';
+        else if (lang === 'en') sysTitle.textContent = 'System Info';
+        else sysTitle.textContent = 'ข้อมูลระบบ';
     }
 };
