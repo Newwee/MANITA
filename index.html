@@ -257,16 +257,49 @@
                 <div id="batchDropzone" style="border: 2px dashed var(--border); border-radius: 12px; padding: 35px 20px; text-align: center; background: var(--bg); cursor: pointer; transition: all 0.2s;" onclick="document.getElementById('batchFileInput').click()">
                   <input type="file" id="batchFileInput" accept=".csv,.txt" style="display: none;" onchange="handleBatchFileSelect(event)">
                   <div style="font-size: 42px; margin-bottom: 12px;">📄</div>
-                  <div style="font-weight: 600; font-size: 16px; margin-bottom: 6px; color: var(--text);">คลิกเพื่อเลือกไฟล์ หรือลากไฟล์คำถามมาวางที่นี่</div>
-                  <div style="font-size: 13px; color: var(--text-dim);">รองรับไฟล์ .csv (เช่น easy_normal_blank.csv ที่มีหัวตาราง question,level,answer)</div>
+                  <div id="dropzoneMainText" style="font-weight: 600; font-size: 16px; margin-bottom: 6px; color: var(--text);">คลิกเพื่อเลือกไฟล์ หรือลากไฟล์คำถามมาวางที่นี่</div>
+                  <div id="dropzoneSubText" style="font-size: 13px; color: var(--text-dim);">รองรับไฟล์ .csv (เช่น easy_normal_blank.csv ที่มีหัวตาราง question,level,answer)</div>
                 </div>
 
                 <!-- Fast Actions -->
                 <div style="margin-top: 15px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap;">
-                  <span style="font-size: 13px; color: var(--text-dim);">หรือทดสอบด่วนด้วยไฟล์ Staff:</span>
+                  <span style="font-size: 13px; color: var(--text-dim);">หรือทดสอบด่วนด้วยชุดข้อสอบ:</span>
                   <button type="button" class="header-btn" onclick="loadSampleBlankCSV()" style="font-size: 12px; padding: 7px 15px; background: rgba(23, 105, 224, 0.12); border-color: var(--blue); color: var(--blue); font-weight: 600; cursor: pointer;">
-                    ⚡ โหลดข้อสอบตัวอย่างทันที (easy_normal_blank.csv - 20 ข้อ)
+                    ⚡ โหลด easy_normal_blank.csv (20 ข้อ)
                   </button>
+                  <button type="button" class="header-btn" onclick="loadHardSampleCSV()" style="font-size: 12px; padding: 7px 15px; background: rgba(245, 158, 11, 0.15); border-color: var(--gold); color: var(--gold); font-weight: 600; cursor: pointer;">
+                    🔥 โหลด hard_hard10_blank.csv (10 ข้อชุดยาก)
+                  </button>
+                </div>
+
+                <!-- Prominent Uploaded File Card (แสดงชื่อไฟล์เด่นชัด) -->
+                <div id="uploadedFileCard" style="display: none; margin-top: 20px; padding: 18px 22px; border-radius: 12px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15) 0%, rgba(23, 105, 224, 0.15) 100%); border: 2px solid var(--gold); box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15);">
+                  <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 14px;">
+                    <div style="display: flex; align-items: center; gap: 16px;">
+                      <div style="width: 50px; height: 50px; min-width: 50px; border-radius: 12px; background: linear-gradient(135deg, var(--gold), #d97706); display: flex; align-items: center; justify-content: center; font-size: 26px; box-shadow: 0 4px 12px rgba(245, 158, 11, 0.3);">
+                        📄
+                      </div>
+                      <div>
+                        <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 4px; flex-wrap: wrap;">
+                          <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 0.8px; font-weight: 800; background: #28a745; color: #fff; padding: 2px 8px; border-radius: 4px; display: inline-flex; align-items: center; gap: 4px;">
+                            <span style="width: 6px; height: 6px; background: #fff; border-radius: 50%; display: inline-block;"></span> กำลังใช้งานไฟล์นี้ (Active)
+                          </span>
+                          <span style="font-size: 12px; color: var(--text-dim);" id="uploadedFileTimestamp"></span>
+                        </div>
+                        <div style="font-size: 20px; font-weight: 800; color: var(--gold); letter-spacing: -0.3px; word-break: break-all;" id="uploadedFileNameDisplay">
+                          <!-- ชื่อไฟล์จะแสดงตรงนี้อย่างเด่นชัด -->
+                        </div>
+                        <div style="font-size: 13px; color: var(--text); margin-top: 4px;" id="uploadedFileDetails">
+                          <!-- จำนวนข้อ และสถานะ -->
+                        </div>
+                      </div>
+                    </div>
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                      <button type="button" onclick="document.getElementById('batchFileInput').click()" class="header-btn" style="padding: 8px 16px; font-size: 13px; font-weight: 600; background: var(--surface); border-color: var(--border);">
+                        🔄 เปลี่ยนไฟล์
+                      </button>
+                    </div>
+                  </div>
                 </div>
 
                 <!-- Batch Controls Toolbar -->
